@@ -1,0 +1,194 @@
+import { addHmrSupport } from '@/utils/server'
+import { getFileName } from '@/utils/files'
+import { getScriptLoader } from '@/utils/loader'
+import { filterScripts, getModule } from '@/utils/vite'
+import fs from 'fs-extra'
+import path from 'path'
+import { createFilter, normalizePath } from 'vite'
+
+export default abstract class DevBuilder<
+	Manifest extends chrome.runtime.Manifest,
+> {
+	protected hmrServer = ''
+	protected scriptHashes = new Set<string>()
+	protected outDir: string
+	protected WasFilter: ReturnType<typeof createFilter>
+
+	constructor(
+		private viteConfig: Vite.ResolvedConfig,
+		private options: WebExtensionOptions,
+		private devServer?: Vite.ViteDevServer,
+	) {
+		this.outDir = path.resolve(
+			process.cwd(),
+			this.viteConfig.root,
+			this.viteConfig.build.outDir,
+		)
+
+		this.WasFilter = filterScripts(this.options.webAccessibleScripts)
+	}
+
+	async writeBuild({
+		port,
+		manifest,
+		htmlFiles,
+	}: {
+		port: number
+		manifest: Manifest
+		htmlFiles: string[]
+	}) {
+		this.hmrServer = this.getHmrServer(port)
+
+		await fs.emptyDir(this.outDir)
+		const publicDir = path.resolve(
+			process.cwd(),
+			this.viteConfig.root,
+			this.viteConfig.publicDir,
+		)
+		fs.copy(publicDir, this.outDir)
+
+		await this.writeOutputHtml(htmlFiles)
+		await this.writeOutputScripts(manifest)
+		await this.writeOutputCss(manifest)
+		await this.writeOutputWas(manifest, this.WasFilter)
+		await this.writeBuildFiles(manifest, htmlFiles)
+
+		this.updateCSP(manifest)
+
+		// write the extension manifest file
+		await fs.writeFile(
+			`${this.outDir}/manifest.json`,
+			JSON.stringify(manifest, null, 2),
+		)
+	}
+
+	protected abstract updateCSP(manifest: Manifest): Manifest
+
+	protected async writeBuildFiles(
+		_manifest: Manifest,
+		_manifestHtmlFiles: string[],
+	): Promise<void> {}
+
+	protected getCSP(contentSecurityPolicy: string | undefined): string {
+		return addHmrSupport(
+			this.hmrServer,
+			this.scriptHashes,
+			contentSecurityPolicy,
+		)
+	}
+
+	protected async writeOutputHtml(htmlFiles: string[]) {
+		for (const file of htmlFiles) {
+			const outputFile = getFileName(file, this.viteConfig.root)
+			await this.writeManifestHtmlFile(file, outputFile)
+
+			this.devServer!.watcher.on('change', async (path) => {
+				if (normalizePath(path) !== outputFile) return
+				await this.writeManifestHtmlFile(file, outputFile)
+			})
+		}
+	}
+
+	private async writeManifestHtmlFile(
+		fileName: string,
+		outputFile: string,
+	): Promise<void> {
+		let content = getModule(outputFile)
+		content ??= await fs.readFile(outputFile, { encoding: 'utf-8' })
+
+		// apply plugin transforms
+		content = await this.devServer!.transformIndexHtml(fileName, content)
+
+		// update root paths with hmr server path
+		content = content.replace(/src="\//g, `src="${this.hmrServer}/`)
+		content = content.replace(/from "\//g, `from "${this.hmrServer}/`)
+
+		// update relative paths
+		const inputFileDir = path.dirname(fileName)
+		const dir = inputFileDir ? `${inputFileDir}/` : ''
+		content = content.replace(/src="\.\//g, `src="${this.hmrServer}/${dir}`)
+		this.parseScriptHashes(content)
+
+		const outFile = `${this.outDir}/${fileName}`
+		const outFileDir = path.dirname(outFile)
+
+		await fs.ensureDir(outFileDir)
+		await fs.writeFile(outFile, content)
+	}
+
+	protected parseScriptHashes(_content: string): void {}
+
+	protected async writeOutputScripts(manifest: Manifest) {
+		if (!manifest.content_scripts) return
+
+		for (const [i, script] of manifest.content_scripts.entries()) {
+			if (!script.js) continue
+
+			for (const [j, file] of script.js.entries()) {
+				const outputFile = getFileName(file)
+				const scriptLoaderFile = getScriptLoader(
+					outputFile,
+					`${this.hmrServer}/${file}`,
+				)
+
+				manifest.content_scripts[i].js![j] = scriptLoaderFile.fileName
+				const outFile = `${this.outDir}/${scriptLoaderFile.fileName}`
+				const outFileDir = path.dirname(outFile)
+
+				await fs.ensureDir(outFileDir)
+				await fs.writeFile(outFile, scriptLoaderFile.source)
+			}
+		}
+	}
+
+	protected async writeOutputCss(manifest: Manifest) {
+		if (!manifest.content_scripts) return
+
+		for (const [i, script] of manifest.content_scripts.entries()) {
+			if (!script.css) continue
+
+			for (const [j, fileName] of script.css.entries()) {
+				const absoluteFileName = getFileName(fileName, this.viteConfig.root)
+				const outputFileName = `${getFileName(fileName)}.css`
+
+				manifest.content_scripts[i].css![j] = outputFileName
+				await this.writeManifestCssFile(outputFileName, absoluteFileName)
+
+				this.devServer!.watcher.on('change', async (path) => {
+					if (normalizePath(path) !== absoluteFileName) return
+					await this.writeManifestCssFile(outputFileName, fileName)
+				})
+			}
+		}
+	}
+
+	protected async writeManifestCssFile(outputFile: string, file: string) {
+		const module = await this.devServer!.ssrLoadModule(file)
+		const source = module.default as string
+
+		const loaderFile = {
+			fileName: outputFile,
+			source,
+		}
+
+		const outFile = `${this.outDir}/${loaderFile.fileName}`
+		const outFileDir = path.dirname(outFile)
+
+		await fs.ensureDir(outFileDir)
+		await fs.writeFile(outFile, loaderFile.source)
+	}
+
+	protected abstract writeOutputWas(
+		manifest: Manifest,
+		wasFilter: ReturnType<typeof createFilter>,
+	): Promise<void>
+
+	/** get hmr server url with port */
+	private getHmrServer(devServerPort: number): string {
+		if (typeof this.viteConfig.server.hmr! === 'boolean') {
+			throw new Error('Vite HMR is misconfigured')
+		}
+
+		return `http://${this.viteConfig.server.hmr!.host}:${devServerPort}`
+	}
+}

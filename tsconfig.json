@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"lib": ["ES6"],
+		"module": "ESNext",
+		"moduleResolution": "node",
+		"noEmit": true,
+		"noEmitOnError": false,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"strict": true,
+		"target": "ES2017",
+		"skipLibCheck": true,
+		"baseUrl": ".",
+		"paths": { "@/*": ["source/*"] }
+	},
+	"exclude": ["dist", "node_modules"],
+	"include": ["source/**/*", "types/**/*"]
+}
