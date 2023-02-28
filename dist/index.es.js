@@ -581,7 +581,6 @@ class ManifestParser {
 			bundle,
 			Boolean(loader.source),
 		)
-		console.log(metadata)
 		/** gets all css output files of current script */
 		chunk.code = chunk.code.replace(
 			new RegExp('import.meta.CURRENT_CHUNK_CSS_PATHS', 'g'),
