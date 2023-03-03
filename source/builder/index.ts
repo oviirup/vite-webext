@@ -39,13 +39,15 @@ export default abstract class DevBuilder<
 	}) {
 		this.hmrServer = this.getHmrServer(port)
 
+		// copies the content of public ditrectory
 		await fs.emptyDir(this.outDir)
 		const publicDir = path.resolve(
 			process.cwd(),
 			this.viteConfig.root,
 			this.viteConfig.publicDir,
 		)
-		fs.copy(publicDir, this.outDir)
+		const publicDirExists = await fs.pathExists(publicDir)
+		if (publicDirExists) fs.copy(publicDir, this.outDir)
 
 		await this.writeOutputHtml(htmlFiles)
 		await this.writeOutputScripts(manifest)
