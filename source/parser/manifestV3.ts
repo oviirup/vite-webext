@@ -48,11 +48,11 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
 
 		const swScript = result.manifest.background?.service_worker
 
-		const inputFile = getFileName(swScript, this.viteConfig.root)
-		const outputFile = getFileName(swScript)
-
-		result.inputScripts.push([outputFile, inputFile])
-		result.manifest.background.type = 'module'
+		const { inputFile, outputFile } = getFileName(swScript, this.viteConfig)
+		if (inputFile) {
+			result.inputScripts.push([outputFile, inputFile])
+			result.manifest.background.type = 'module'
+		}
 
 		return result
 	}
@@ -63,10 +63,9 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
 			struct.resources.forEach((resource) => {
 				if (resource.includes('*')) return
 
-				const inputFile = getFileName(resource, this.viteConfig.root)
-				const outputFile = getFileName(resource)
+				const { inputFile, outputFile } = getFileName(resource, this.viteConfig)
 
-				if (this.WasFilter(inputFile)) {
+				if (inputFile && this.WasFilter(inputFile)) {
 					result.inputScripts.push([outputFile, inputFile])
 				}
 			})
@@ -89,9 +88,9 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
 			// loop through content-script js
 			script.js?.forEach((scriptFileName, i) => {
 				const parsedScript = this.parseOutputJs(scriptFileName, result, bundle)
-				script.js![i] = parsedScript.fileName
+				if (parsedScript?.fileName) script.js![i] = parsedScript.fileName
 				// add to web-accessible-resource
-				parsedScript.waFiles.forEach(resources.add, resources)
+				parsedScript?.waFiles.forEach(resources.add, resources)
 			})
 			// loop through content-script css
 			script.css?.forEach((cssFileName, i) => {

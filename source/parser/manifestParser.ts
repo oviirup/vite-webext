@@ -116,10 +116,11 @@ export default abstract class ManifestParser<
 			/** get all css & js files */
 			const files = [...(script.js ?? []), ...(script.css ?? [])]
 			files?.forEach((file) => {
-				const inputFile = getFileName(file, this.viteConfig.root)
-				const outputFile = getFileName(file)
-				// push to input scripts
-				result.inputScripts.push([outputFile, inputFile])
+				const { inputFile, outputFile } = getFileName(file, this.viteConfig)
+				if (inputFile) {
+					// push to input scripts
+					result.inputScripts.push([outputFile, inputFile])
+				}
 			})
 		})
 
@@ -135,12 +136,11 @@ export default abstract class ManifestParser<
 	): Result<Manifest> {
 		if (!html) return result
 
-		const inputFile = getFileName(html, this.viteConfig.root)
-		const outputFile = getFileName(html)
-
-		// push to input scripts
-		result.inputScripts.push([outputFile, inputFile])
-
+		const { inputFile, outputFile } = getFileName(html, this.viteConfig)
+		if (inputFile) {
+			// push to input scripts
+			result.inputScripts.push([outputFile, inputFile])
+		}
 		return result
 	}
 
@@ -162,11 +162,15 @@ export default abstract class ManifestParser<
 		file: string,
 		result: Result<Manifest>,
 		bundle: Rollup.OutputBundle,
-	): { fileName: string; waFiles: Set<string> } {
-		const chunk = getScriptChunkInfo(bundle, file)
+	): { fileName?: string; waFiles: Set<string> } | undefined {
+		const { inputFile, publicFile } = getFileName(file, this.viteConfig)
+		if (!inputFile) return
+		if (publicFile) return { waFiles: new Set([publicFile]) }
+
+		const chunk = getScriptChunkInfo(bundle, inputFile)
 		// throw error if script not found
 		if (!chunk) {
-			throw new Error(`Failed to find chunk info for ${file}`)
+			throw new Error(`Failed to find chunk info for ${inputFile}`)
 		}
 
 		const loader = getCsLoader(file, chunk)
@@ -297,12 +301,15 @@ export default abstract class ManifestParser<
 			result.manifest.background.scripts.map((s) => s.replace(/^\.\//, '/')),
 		)
 
-		const inputFile = getFileName(htmlLoaderFile.fileName, this.viteConfig.root)
-		const outputFile = getFileName(htmlLoaderFile.fileName)
+		const { inputFile, outputFile } = getFileName(
+			htmlLoaderFile.fileName,
+			this.viteConfig,
+		)
+		if (inputFile) {
+			result.inputScripts.push([outputFile, inputFile])
 
-		result.inputScripts.push([outputFile, inputFile])
-
-		setModule(inputFile, htmlLoaderFile.source)
+			setModule(inputFile, htmlLoaderFile.source)
+		}
 
 		// @ts-expect-error - Force support of event pages in manifest V3
 		delete result.manifest.background.scripts

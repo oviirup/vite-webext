@@ -1,25 +1,34 @@
 import path from 'path'
 import { createHash } from 'crypto'
 import { normalizePath } from 'vite'
+import { existsSync } from 'fs-extra'
 
-export function normalizeFileName(fileName: string, includeExt = true): string {
-	let nPath = normalizePath(path.normalize(fileName))
+export function sanitise(...filePaths: string[]) {
+	let filePath = filePaths.join('/')
+	let nPath = normalizePath(path.normalize(filePath))
 	let { dir = '', name, ext } = path.parse(nPath)
-
-	return `${dir}/${name}${includeExt ? ext : ''}`.replace(/^\/+/, '')
+	let fileName = `${dir}/${name}`.replace(/^\/+/, '')
+	return {
+		name: fileName,
+		path: fileName + ext,
+	}
 }
 
-/** gets the absolute path or relative path */
-export function getFileName(fileName: string, root?: string) {
-	let nPath = normalizePath(path.normalize(fileName))
-	let { dir = '', name, ext } = path.parse(nPath)
+/** checks is the file is in public or source */
+export function getFileName(fileName: string, config?: Vite.ResolvedConfig) {
+	fileName = normalizePath(fileName)
+	const outputPath = sanitise(fileName).name
 
-	// output: someLocation/path/fileName.ext
-	const output = `${dir}/${name}`.replace(/^\/+/, '')
-	// input: c:/projects/private/repo-name/source/script.ts
-	const input = `${root}/${output}${ext}`
-
-	return root ? input : output
+	// probable file path in root and public folder
+	const file = {
+		S: config?.root && sanitise(config.root, fileName).path,
+		P: config?.publicDir && sanitise(config.publicDir, fileName).path,
+	}
+	return {
+		inputFile: file.S && existsSync(file.S) ? file.S : undefined,
+		publicFile: file.P && existsSync(file.P) ? file.P : undefined,
+		outputFile: outputPath,
+	}
 }
 
 export function isHTML(file: string): boolean {

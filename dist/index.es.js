@@ -1,25 +1,39 @@
 import path from 'path'
 import crypto, { createHash } from 'crypto'
 import { normalizePath, createFilter } from 'vite'
-import fs, { ensureDir, writeFile } from 'fs-extra'
+import fs, { existsSync, ensureDir, writeFile } from 'fs-extra'
 import getEtag from 'etag'
 import parse from 'content-security-policy-parser'
 import MagicString from 'magic-string'
 
-function normalizeFileName(fileName, includeExt = true) {
-	let nPath = normalizePath(path.normalize(fileName))
+function sanitise(...filePaths) {
+	let filePath = filePaths.join('/')
+	let nPath = normalizePath(path.normalize(filePath))
 	let { dir = '', name, ext } = path.parse(nPath)
-	return `${dir}/${name}${includeExt ? ext : ''}`.replace(/^\/+/, '')
+	let fileName = `${dir}/${name}`.replace(/^\/+/, '')
+	return {
+		name: fileName,
+		path: fileName + ext,
+	}
 }
-/** gets the absolute path or relative path */
-function getFileName(fileName, root) {
-	let nPath = normalizePath(path.normalize(fileName))
-	let { dir = '', name, ext } = path.parse(nPath)
-	// output: someLocation/path/fileName.ext
-	const output = `${dir}/${name}`.replace(/^\/+/, '')
-	// input: c:/projects/private/repo-name/source/script.ts
-	const input = `${root}/${output}${ext}`
-	return root ? input : output
+/** checks is the file is in public or source */
+function getFileName(fileName, config) {
+	fileName = normalizePath(fileName)
+	const outputPath = sanitise(fileName).name
+	// probable file path in root and public folder
+	const file = {
+		S:
+			(config === null || config === void 0 ? void 0 : config.root) &&
+			sanitise(config.root, fileName).path,
+		P:
+			(config === null || config === void 0 ? void 0 : config.publicDir) &&
+			sanitise(config.publicDir, fileName).path,
+	}
+	return {
+		inputFile: file.S && existsSync(file.S) ? file.S : undefined,
+		publicFile: file.P && existsSync(file.P) ? file.P : undefined,
+		outputFile: outputPath,
+	}
 }
 function isHTML(file) {
 	return /[^*]+.html$/.test(file)
@@ -298,11 +312,12 @@ class DevBuilder {
 	}
 	async writeOutputHtml(htmlFiles) {
 		for (const file of htmlFiles) {
-			const outputFile = getFileName(file, this.viteConfig.root)
-			await this.writeManifestHtmlFile(file, outputFile)
+			const { inputFile } = getFileName(file, this.viteConfig)
+			if (!inputFile) continue
+			await this.writeManifestHtmlFile(file, inputFile)
 			this.devServer.watcher.on('change', async (path) => {
-				if (normalizePath(path) !== outputFile) return
-				await this.writeManifestHtmlFile(file, outputFile)
+				if (normalizePath(path) !== inputFile) return
+				await this.writeManifestHtmlFile(file, inputFile)
 			})
 		}
 	}
@@ -332,16 +347,13 @@ class DevBuilder {
 		for (const [i, script] of manifest.content_scripts.entries()) {
 			if (!script.js) continue
 			for (const [j, file] of script.js.entries()) {
-				const outputFile = getFileName(file)
-				const scriptLoaderFile = getScriptLoader(
-					outputFile,
-					`${this.hmrServer}/${file}`,
-				)
-				manifest.content_scripts[i].js[j] = scriptLoaderFile.fileName
-				const outFile = `${this.outDir}/${scriptLoaderFile.fileName}`
+				const { outputFile } = getFileName(file)
+				const loader = getScriptLoader(outputFile, `${this.hmrServer}/${file}`)
+				manifest.content_scripts[i].js[j] = loader.fileName
+				const outFile = `${this.outDir}/${loader.fileName}`
 				const outFileDir = path.dirname(outFile)
 				await fs.ensureDir(outFileDir)
-				await fs.writeFile(outFile, scriptLoaderFile.source)
+				await fs.writeFile(outFile, loader.source)
 			}
 		}
 	}
@@ -350,13 +362,13 @@ class DevBuilder {
 		for (const [i, script] of manifest.content_scripts.entries()) {
 			if (!script.css) continue
 			for (const [j, fileName] of script.css.entries()) {
-				const absoluteFileName = getFileName(fileName, this.viteConfig.root)
-				const outputFileName = `${getFileName(fileName)}.css`
-				manifest.content_scripts[i].css[j] = outputFileName
-				await this.writeManifestCssFile(outputFileName, absoluteFileName)
+				const { inputFile, outputFile } = getFileName(fileName, this.viteConfig)
+				if (!inputFile) continue
+				manifest.content_scripts[i].css[j] = outputFile
+				await this.writeManifestCssFile(outputFile, inputFile)
 				this.devServer.watcher.on('change', async (path) => {
-					if (normalizePath(path) !== absoluteFileName) return
-					await this.writeManifestCssFile(outputFileName, fileName)
+					if (normalizePath(path) !== inputFile) return
+					await this.writeManifestCssFile(outputFile, fileName)
 				})
 			}
 		}
@@ -403,7 +415,7 @@ class DevBuilderV2 extends DevBuilder {
 		for (const [i, resource] of manifest.web_accessible_resources.entries()) {
 			if (!resource) continue
 			if (!wasFilter(resource)) continue
-			const outputFile = getFileName(resource)
+			const { outputFile } = getFileName(resource)
 			const loader = getScriptLoader(
 				outputFile,
 				`${this.hmrServer}/${resource}`,
@@ -439,7 +451,7 @@ function parseOptionsInput(input) {
 }
 /** fetches all script file info from build output */
 function getScriptChunkInfo(bundle, chunkId) {
-	const file = normalizeFileName(chunkId)
+	const file = sanitise(chunkId).path
 	return Object.values(bundle).find((chunk) => {
 		var _a
 		if (chunk.type === 'asset') return false
@@ -452,14 +464,14 @@ function getScriptChunkInfo(bundle, chunkId) {
 }
 /** fetches all css/sass file info from build output */
 function getCssAssetInfo(bundle, assetFileName) {
-	const file = normalizeFileName(assetFileName)
+	let fileName = sanitise(assetFileName).name + '.css'
 	return Object.values(bundle).find((chunk) => {
 		var _a, _b
 		if (chunk.type === 'chunk') return
 		const chunkName =
 			(_a = chunk.name) !== null && _a !== void 0 ? _a : chunk.fileName
 		if (!/\.(s?[ca]ss)$/.test(chunkName)) return false
-		return file.endsWith(
+		return fileName.endsWith(
 			(_b = chunk.name) !== null && _b !== void 0 ? _b : chunk.fileName,
 		)
 	})
@@ -537,10 +549,14 @@ class ManifestParser {
 					files === null || files === void 0
 						? void 0
 						: files.forEach((file) => {
-								const inputFile = getFileName(file, this.viteConfig.root)
-								const outputFile = getFileName(file)
-								// push to input scripts
-								result.inputScripts.push([outputFile, inputFile])
+								const { inputFile, outputFile } = getFileName(
+									file,
+									this.viteConfig,
+								)
+								if (inputFile) {
+									// push to input scripts
+									result.inputScripts.push([outputFile, inputFile])
+								}
 						  })
 			  })
 		return result
@@ -548,10 +564,11 @@ class ManifestParser {
 	/** get all input html files */
 	parseInputHtmlFile(html, result) {
 		if (!html) return result
-		const inputFile = getFileName(html, this.viteConfig.root)
-		const outputFile = getFileName(html)
-		// push to input scripts
-		result.inputScripts.push([outputFile, inputFile])
+		const { inputFile, outputFile } = getFileName(html, this.viteConfig)
+		if (inputFile) {
+			// push to input scripts
+			result.inputScripts.push([outputFile, inputFile])
+		}
 		return result
 	}
 	/** get the output css files */
@@ -565,10 +582,13 @@ class ManifestParser {
 	}
 	/** get the output js files */
 	parseOutputJs(file, result, bundle) {
-		const chunk = getScriptChunkInfo(bundle, file)
+		const { inputFile, publicFile } = getFileName(file, this.viteConfig)
+		if (!inputFile) return
+		if (publicFile) return { waFiles: new Set([publicFile]) }
+		const chunk = getScriptChunkInfo(bundle, inputFile)
 		// throw error if script not found
 		if (!chunk) {
-			throw new Error(`Failed to find chunk info for ${file}`)
+			throw new Error(`Failed to find chunk info for ${inputFile}`)
 		}
 		const loader = getCsLoader(file, chunk)
 		if (loader.source) {
@@ -669,10 +689,14 @@ class ManifestParser {
 			// @ts-expect-error - Force support of event pages in manifest V3
 			result.manifest.background.scripts.map((s) => s.replace(/^\.\//, '/')),
 		)
-		const inputFile = getFileName(htmlLoaderFile.fileName, this.viteConfig.root)
-		const outputFile = getFileName(htmlLoaderFile.fileName)
-		result.inputScripts.push([outputFile, inputFile])
-		setModule(inputFile, htmlLoaderFile.source)
+		const { inputFile, outputFile } = getFileName(
+			htmlLoaderFile.fileName,
+			this.viteConfig,
+		)
+		if (inputFile) {
+			result.inputScripts.push([outputFile, inputFile])
+			setModule(inputFile, htmlLoaderFile.source)
+		}
 		// @ts-expect-error - Force support of event pages in manifest V3
 		delete result.manifest.background.scripts
 		// @ts-expect-error - Force support of event pages in manifest V3
@@ -727,9 +751,11 @@ class ManifestV2 extends ManifestParser {
 			? void 0
 			: _a.forEach((resource) => {
 					if (resource.includes('*')) return
-					const inputFile = getFileName(resource, this.viteConfig.root)
-					const outputFile = getFileName(resource)
-					if (this.WasFilter(inputFile)) {
+					const { inputFile, outputFile } = getFileName(
+						resource,
+						this.viteConfig,
+					)
+					if (inputFile && this.WasFilter(inputFile)) {
 						result.inputScripts.push([outputFile, inputFile])
 					}
 			  })
@@ -756,9 +782,16 @@ class ManifestV2 extends ManifestParser {
 									result,
 									bundle,
 								)
-								script.js[i] = parsedScript.fileName
+								if (
+									parsedScript === null || parsedScript === void 0
+										? void 0
+										: parsedScript.fileName
+								)
+									script.js[i] = parsedScript.fileName
 								// add to web-accessible-resource
-								parsedScript.waFiles.forEach(waResources.add, waResources)
+								parsedScript === null || parsedScript === void 0
+									? void 0
+									: parsedScript.waFiles.forEach(waResources.add, waResources)
 						  })
 					// loop through content-script css
 					;(_b = script.css) === null || _b === void 0
@@ -844,7 +877,7 @@ class DevBuilderV3 extends DevBuilder {
 			if (!struct || !struct.resources.length) continue
 			for (const [j, fileName] of struct.resources.entries()) {
 				if (!wasFilter(fileName)) continue
-				const outputFile = getFileName(fileName)
+				const { outputFile } = getFileName(fileName)
 				const loader = getScriptLoader(
 					outputFile,
 					`${this.hmrServer}/${fileName}`,
@@ -910,10 +943,11 @@ class ManifestV3 extends ManifestParser {
 			(_b = result.manifest.background) === null || _b === void 0
 				? void 0
 				: _b.service_worker
-		const inputFile = getFileName(swScript, this.viteConfig.root)
-		const outputFile = getFileName(swScript)
-		result.inputScripts.push([outputFile, inputFile])
-		result.manifest.background.type = 'module'
+		const { inputFile, outputFile } = getFileName(swScript, this.viteConfig)
+		if (inputFile) {
+			result.inputScripts.push([outputFile, inputFile])
+			result.manifest.background.type = 'module'
+		}
 		return result
 	}
 	/** parse input web-accessible-resources */
@@ -924,9 +958,11 @@ class ManifestV3 extends ManifestParser {
 			: _a.forEach((struct) => {
 					struct.resources.forEach((resource) => {
 						if (resource.includes('*')) return
-						const inputFile = getFileName(resource, this.viteConfig.root)
-						const outputFile = getFileName(resource)
-						if (this.WasFilter(inputFile)) {
+						const { inputFile, outputFile } = getFileName(
+							resource,
+							this.viteConfig,
+						)
+						if (inputFile && this.WasFilter(inputFile)) {
 							result.inputScripts.push([outputFile, inputFile])
 						}
 					})
@@ -955,9 +991,16 @@ class ManifestV3 extends ManifestParser {
 									result,
 									bundle,
 								)
-								script.js[i] = parsedScript.fileName
+								if (
+									parsedScript === null || parsedScript === void 0
+										? void 0
+										: parsedScript.fileName
+								)
+									script.js[i] = parsedScript.fileName
 								// add to web-accessible-resource
-								parsedScript.waFiles.forEach(resources.add, resources)
+								parsedScript === null || parsedScript === void 0
+									? void 0
+									: parsedScript.waFiles.forEach(resources.add, resources)
 						  })
 					// loop through content-script css
 					;(_b = script.css) === null || _b === void 0

@@ -81,12 +81,13 @@ export default abstract class DevBuilder<
 
 	protected async writeOutputHtml(htmlFiles: string[]) {
 		for (const file of htmlFiles) {
-			const outputFile = getFileName(file, this.viteConfig.root)
-			await this.writeManifestHtmlFile(file, outputFile)
+			const { inputFile } = getFileName(file, this.viteConfig)
+			if (!inputFile) continue
+			await this.writeManifestHtmlFile(file, inputFile)
 
 			this.devServer!.watcher.on('change', async (path) => {
-				if (normalizePath(path) !== outputFile) return
-				await this.writeManifestHtmlFile(file, outputFile)
+				if (normalizePath(path) !== inputFile) return
+				await this.writeManifestHtmlFile(file, inputFile)
 			})
 		}
 	}
@@ -127,18 +128,15 @@ export default abstract class DevBuilder<
 			if (!script.js) continue
 
 			for (const [j, file] of script.js.entries()) {
-				const outputFile = getFileName(file)
-				const scriptLoaderFile = getScriptLoader(
-					outputFile,
-					`${this.hmrServer}/${file}`,
-				)
+				const { outputFile } = getFileName(file)
+				const loader = getScriptLoader(outputFile, `${this.hmrServer}/${file}`)
 
-				manifest.content_scripts[i].js![j] = scriptLoaderFile.fileName
-				const outFile = `${this.outDir}/${scriptLoaderFile.fileName}`
+				manifest.content_scripts[i].js![j] = loader.fileName
+				const outFile = `${this.outDir}/${loader.fileName}`
 				const outFileDir = path.dirname(outFile)
 
 				await fs.ensureDir(outFileDir)
-				await fs.writeFile(outFile, scriptLoaderFile.source)
+				await fs.writeFile(outFile, loader.source)
 			}
 		}
 	}
@@ -150,15 +148,14 @@ export default abstract class DevBuilder<
 			if (!script.css) continue
 
 			for (const [j, fileName] of script.css.entries()) {
-				const absoluteFileName = getFileName(fileName, this.viteConfig.root)
-				const outputFileName = `${getFileName(fileName)}.css`
-
-				manifest.content_scripts[i].css![j] = outputFileName
-				await this.writeManifestCssFile(outputFileName, absoluteFileName)
+				const { inputFile, outputFile } = getFileName(fileName, this.viteConfig)
+				if (!inputFile) continue
+				manifest.content_scripts[i].css![j] = outputFile
+				await this.writeManifestCssFile(outputFile, inputFile)
 
 				this.devServer!.watcher.on('change', async (path) => {
-					if (normalizePath(path) !== absoluteFileName) return
-					await this.writeManifestCssFile(outputFileName, fileName)
+					if (normalizePath(path) !== inputFile) return
+					await this.writeManifestCssFile(outputFile, fileName)
 				})
 			}
 		}

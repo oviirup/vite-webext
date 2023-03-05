@@ -54,7 +54,7 @@ export default class DevBuilderV3 extends DevBuilder<chrome.runtime.ManifestV3> 
 			for (const [j, fileName] of struct.resources.entries()) {
 				if (!wasFilter(fileName)) continue
 
-				const outputFile = getFileName(fileName)
+				const { outputFile } = getFileName(fileName)
 				const loader = getScriptLoader(
 					outputFile,
 					`${this.hmrServer}/${fileName}`,

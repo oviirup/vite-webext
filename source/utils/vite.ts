@@ -1,6 +1,6 @@
 import MagicString from 'magic-string'
 import { createFilter } from 'vite'
-import { normalizeFileName } from './files'
+import { sanitise } from './files'
 
 /** Updates vite config with necessary settings */
 export function updateConfig(
@@ -75,7 +75,7 @@ export function findChunk(
 	manifest: Vite.Manifest,
 	file: string,
 ): Vite.ManifestChunk | undefined {
-	return manifest[normalizeFileName(file)]
+	return manifest[sanitise(file).path]
 }
 
 export function filterScripts(

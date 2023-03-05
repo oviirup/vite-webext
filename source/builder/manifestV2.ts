@@ -37,7 +37,7 @@ export default class DevBuilderV2 extends DevBuilder<chrome.runtime.ManifestV2> 
 			if (!resource) continue
 			if (!wasFilter(resource)) continue
 
-			const outputFile = getFileName(resource)
+			const { outputFile } = getFileName(resource)
 			const loader = getScriptLoader(
 				outputFile,
 				`${this.hmrServer}/${resource}`,

@@ -51,10 +51,8 @@ export default class ManifestV2 extends ManifestParser<Manifest> {
 		result.manifest.web_accessible_resources?.forEach((resource) => {
 			if (resource.includes('*')) return
 
-			const inputFile = getFileName(resource, this.viteConfig.root)
-			const outputFile = getFileName(resource)
-
-			if (this.WasFilter(inputFile)) {
+			const { inputFile, outputFile } = getFileName(resource, this.viteConfig)
+			if (inputFile && this.WasFilter(inputFile)) {
 				result.inputScripts.push([outputFile, inputFile])
 			}
 		})
@@ -75,9 +73,9 @@ export default class ManifestV2 extends ManifestParser<Manifest> {
 			// loop through content-script js
 			script.js?.forEach((scriptFileName, i) => {
 				const parsedScript = this.parseOutputJs(scriptFileName, result, bundle)
-				script.js![i] = parsedScript.fileName
+				if (parsedScript?.fileName) script.js![i] = parsedScript.fileName
 				// add to web-accessible-resource
-				parsedScript.waFiles.forEach(waResources.add, waResources)
+				parsedScript?.waFiles.forEach(waResources.add, waResources)
 			})
 			// loop through content-script css
 			script.css?.forEach((cssFileName, i) => {
