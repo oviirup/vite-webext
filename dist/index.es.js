@@ -16,8 +16,15 @@ function sanitise(...filePaths) {
 		path: fileName + ext,
 	}
 }
+/** returns the path only if it exists */
+function validatePath(filePath, noCheck = false) {
+	if (!filePath) return
+	if (noCheck) return filePath
+	if (existsSync(filePath)) return filePath
+	return
+}
 /** checks is the file is in public or source */
-function getFileName(fileName, config) {
+function getFileName(fileName, config, noCheck = false) {
 	fileName = normalizePath(fileName)
 	const outputPath = sanitise(fileName).name
 	// probable file path in root and public folder
@@ -30,8 +37,8 @@ function getFileName(fileName, config) {
 			sanitise(config.publicDir, fileName).path,
 	}
 	return {
-		inputFile: file.S && existsSync(file.S) ? file.S : undefined,
-		publicFile: file.P && existsSync(file.P) ? file.P : undefined,
+		inputFile: validatePath(file.S, noCheck),
+		publicFile: validatePath(file.P, noCheck),
 		outputFile: outputPath,
 	}
 }
@@ -684,23 +691,21 @@ class ManifestParser {
 				: _a.scripts)
 		)
 			return result
-		const htmlLoaderFile = getHtmlLoader(
+		const loader = getHtmlLoader(
 			'background',
 			// @ts-expect-error - Force support of event pages in manifest V3
 			result.manifest.background.scripts.map((s) => s.replace(/^\.\//, '/')),
 		)
-		const { inputFile, outputFile } = getFileName(
-			htmlLoaderFile.fileName,
-			this.viteConfig,
-		)
+		const file = loader.fileName
+		const { inputFile, outputFile } = getFileName(file, this.viteConfig, true)
 		if (inputFile) {
 			result.inputScripts.push([outputFile, inputFile])
-			setModule(inputFile, htmlLoaderFile.source)
+			setModule(inputFile, loader.source)
 		}
 		// @ts-expect-error - Force support of event pages in manifest V3
 		delete result.manifest.background.scripts
 		// @ts-expect-error - Force support of event pages in manifest V3
-		result.manifest.background.page = htmlLoaderFile.fileName
+		result.manifest.background.page = loader.fileName
 		return result
 	}
 }

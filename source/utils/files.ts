@@ -14,8 +14,20 @@ export function sanitise(...filePaths: string[]) {
 	}
 }
 
+/** returns the path only if it exists */
+export function validatePath(filePath: string | undefined, noCheck = false) {
+	if (!filePath) return
+	if (noCheck) return filePath
+	if (existsSync(filePath)) return filePath
+	return
+}
+
 /** checks is the file is in public or source */
-export function getFileName(fileName: string, config?: Vite.ResolvedConfig) {
+export function getFileName(
+	fileName: string,
+	config?: Vite.ResolvedConfig,
+	noCheck: boolean = false,
+) {
 	fileName = normalizePath(fileName)
 	const outputPath = sanitise(fileName).name
 
@@ -25,8 +37,8 @@ export function getFileName(fileName: string, config?: Vite.ResolvedConfig) {
 		P: config?.publicDir && sanitise(config.publicDir, fileName).path,
 	}
 	return {
-		inputFile: file.S && existsSync(file.S) ? file.S : undefined,
-		publicFile: file.P && existsSync(file.P) ? file.P : undefined,
+		inputFile: validatePath(file.S, noCheck),
+		publicFile: validatePath(file.P, noCheck),
 		outputFile: outputPath,
 	}
 }

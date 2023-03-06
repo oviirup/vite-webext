@@ -295,26 +295,23 @@ export default abstract class ManifestParser<
 		// @ts-expect-error - Force support of event pages in manifest V3
 		if (!result.manifest.background?.scripts) return result
 
-		const htmlLoaderFile = getHtmlLoader(
+		const loader = getHtmlLoader(
 			'background',
 			// @ts-expect-error - Force support of event pages in manifest V3
 			result.manifest.background.scripts.map((s) => s.replace(/^\.\//, '/')),
 		)
 
-		const { inputFile, outputFile } = getFileName(
-			htmlLoaderFile.fileName,
-			this.viteConfig,
-		)
+		const file = loader.fileName
+		const { inputFile, outputFile } = getFileName(file, this.viteConfig, true)
 		if (inputFile) {
 			result.inputScripts.push([outputFile, inputFile])
-
-			setModule(inputFile, htmlLoaderFile.source)
+			setModule(inputFile, loader.source)
 		}
 
 		// @ts-expect-error - Force support of event pages in manifest V3
 		delete result.manifest.background.scripts
 		// @ts-expect-error - Force support of event pages in manifest V3
-		result.manifest.background.page = htmlLoaderFile.fileName
+		result.manifest.background.page = loader.fileName
 
 		return result
 	}
