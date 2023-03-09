@@ -9,12 +9,13 @@
 	"license": "MIT",
 	"repository": "https://github.com/graygalaxy/vite-plugin-webext.git",
 	"files": [
+		"types/index.d.ts",
 		"build",
 		"client"
 	],
 	"private": false,
 	"scripts": {
-		"postinstall": "husky install .github/husky",
+		"prepare": "husky install .github/husky",
 		"build": "tsc && rollup -c",
 		"postbuild": "prettier --write ./dist",
 		"watch": "rollup -c -w",
