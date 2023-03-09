@@ -12,7 +12,9 @@
 		"build",
 		"client"
 	],
+	"private": false,
 	"scripts": {
+		"postinstall": "husky install .github/husky",
 		"build": "tsc && rollup -c",
 		"postbuild": "prettier --write ./dist",
 		"watch": "rollup -c -w",
@@ -22,6 +24,7 @@
 		"@rollup/plugin-typescript": "^10.0.1",
 		"@types/fs-extra": "^9.0.13",
 		"@types/node": "^18.11.18",
+		"husky": "^8.0.0",
 		"prettier": "2.4.1",
 		"rollup": "^3.9.0",
 		"tslib": "^2.5.0",
