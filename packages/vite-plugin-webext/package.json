@@ -7,7 +7,7 @@
 	"types": "types/index.d.ts",
 	"author": "Avirup Ghosh",
 	"license": "MIT",
-	"repository": "https://github.com/graygalaxy/vite-plugin-webext.git",
+	"repository": "https://github.com/graygalaxy/vite-webext.git",
 	"files": [
 		"types/index.d.ts",
 		"build",

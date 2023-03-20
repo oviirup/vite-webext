@@ -1,6 +1,6 @@
 # vite-plugin-webext
 
-![version](https://img.shields.io/github/package-json/v/graygalaxy/vite-plugin-webext)
+![version](https://img.shields.io/github/package-json/v/graygalaxy/vite-webext)
 
 > A vite plugin to generate cross-browser web extensions, available for chrome, edge, firefox, opera etc...
 
