@@ -23,6 +23,15 @@ export default abstract class ManifestParser<
 		protected options: WebExtensionOptions,
 		protected viteConfig: Vite.ResolvedConfig,
 	) {
+		if (this.options.manifest.version === 'DATE') {
+			let now = new Date()
+			const version = [
+				now.getFullYear().toString().slice(2),
+				now.getMonth() + 1,
+				now.getDate(),
+			].join('.')
+			this.options.manifest.version = version
+		}
 		this.inputManifest = this.options.manifest as Manifest
 		this.WasFilter = filterScripts(this.options.webAccessibleScripts)
 	}
@@ -272,8 +281,8 @@ export default abstract class ManifestParser<
 
 		if (includeAsAsset) metadata.assets.add(chunkInfo.fileName)
 
-		chunkInfo.viteMetadata.importedCss.forEach(metadata.css.add, metadata.css)
-		chunkInfo.viteMetadata.importedAssets.forEach(
+		chunkInfo.viteMetadata!.importedCss.forEach(metadata.css.add, metadata.css)
+		chunkInfo.viteMetadata!.importedAssets.forEach(
 			metadata.assets.add,
 			metadata.assets,
 		)

@@ -489,6 +489,15 @@ class ManifestParser {
 		this.options = options
 		this.viteConfig = viteConfig
 		this.parseChunkIds = new Set()
+		if (this.options.manifest.version === 'DATE') {
+			let now = new Date()
+			const version = [
+				now.getFullYear().toString().slice(2),
+				now.getMonth() + 1,
+				now.getDate(),
+			].join('.')
+			this.options.manifest.version = version
+		}
 		this.inputManifest = this.options.manifest
 		this.WasFilter = filterScripts(this.options.webAccessibleScripts)
 	}

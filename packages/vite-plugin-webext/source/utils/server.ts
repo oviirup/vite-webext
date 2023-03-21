@@ -1,4 +1,5 @@
 import getEtag from 'etag'
+import parse from 'content-security-policy-parser'
 
 /** add hmr support to shadow dom */
 export function contentScriptStyleHandler(
@@ -81,8 +82,6 @@ export function contentScriptStyleHandler(
 
 	next()
 }
-
-import parse from 'content-security-policy-parser'
 
 export const addHmrSupport = (
 	hmrServer: string,
