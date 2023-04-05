@@ -38,6 +38,6 @@ declare global {
 
 declare module 'rollup' {
 	export interface RenderedChunk {
-		viteMetadata: ChunkMetadata
+		viteMetadata: _Vite.ChunkMetadata
 	}
 }

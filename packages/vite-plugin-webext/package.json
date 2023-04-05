@@ -1,16 +1,19 @@
 {
 	"name": "vite-plugin-webext",
-	"version": "1.2.2",
+	"version": "1.2.3",
 	"description": "A vite plugin for generating cross browser platform, ES module based web extensions",
-	"main": "dist/index.js",
-	"module": "dist/index.es.js",
+	"main": "dist/index.cjs",
+	"module": "dist/index.mjs",
 	"types": "types/index.d.ts",
-	"author": "Avirup Ghosh",
+	"exports": {
+		"require": "./dist/index.cjs",
+		"import": "./dist/index.mjs"
+	},
+	"author": "Avirup Ghosh (https://github.com/graygalaxy)",
 	"license": "MIT",
-	"repository": "https://github.com/graygalaxy/vite-webext.git",
+	"repository": "github:graygalaxy/vite-webext",
 	"files": [
 		"types/index.d.ts",
-		"build",
 		"client"
 	],
 	"private": false,
