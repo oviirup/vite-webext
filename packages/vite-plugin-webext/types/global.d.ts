@@ -2,7 +2,7 @@ import * as _Rollup from 'rollup'
 import * as _Vite from 'vite'
 import * as http from 'node:http'
 
-import { WebExtensionOptions as _Options } from './index'
+import { WebExtensionOptions as _Options } from './dist'
 
 declare global {
 	type WebExtensionOptions = _Options
