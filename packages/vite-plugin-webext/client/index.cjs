@@ -1,14 +1,10 @@
 let Browser = chrome ?? browser
 
-module.exports.mountShadow = async function () {
+module.exports.mountShadow = async function (container) {
 	const isDev = import.meta.env.DEV || false
-	const container = document.createElement('div')
+	if (!container) container = document.createElement('div')
 	const shadow = container.attachShadow({ mode: isDev ? 'open' : 'closed' })
 	const root = document.createElement('div')
-	// fetch all imported css paths
-
-	// will remove it after render, minimizes jitter
-	container.style.visibility = 'hidden'
 
 	// enables HMR in development mode
 	if (import.meta.hot) {
@@ -28,11 +24,9 @@ module.exports.mountShadow = async function () {
 	}
 
 	shadow?.appendChild(root)
-	container.style.visibility = 'unset'
 
 	return {
 		container,
-		shadow,
 		root,
 	}
 }

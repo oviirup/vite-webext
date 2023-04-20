@@ -26,7 +26,7 @@ export function updateConfig(
 	config.optimizeDeps ??= {}
 	config.optimizeDeps.exclude ??= []
 	config.optimizeDeps.exclude?.push('/@vite/client')
-	config.build.rollupOptions.output ??= {} as Rollup.OutputOptions
+	config.build.rollupOptions.output ??= {}
 
 	// enable support for hot-module-reload
 	config.server ??= {}

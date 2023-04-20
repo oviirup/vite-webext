@@ -67,7 +67,9 @@ export default function webExtension(
 		transform: (code) => transformImports(code, userConfig),
 
 		generateBundle: async function (_options, bundle) {
-			const { emitFiles } = await manifestParser.parseOutput(bundle)
+			const { emitFiles } = await manifestParser.parseOutput(
+				bundle as Rollup.OutputBundle,
+			)
 			emitFiles.forEach(this.emitFile)
 		},
 	}

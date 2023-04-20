@@ -16,5 +16,5 @@
 		"paths": { "@/*": ["source/*"] }
 	},
 	"exclude": ["dist", "node_modules"],
-	"include": ["source/**/*", "types/**/*"]
+	"include": ["source/**/*"]
 }
