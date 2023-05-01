@@ -2,11 +2,11 @@
 
 [![version][npm_version]][npm_url]
 
-> A Vite plugin to generate cross-browser web extensions, available for chrome, edge, firefox, opera etc...
+> A Vite plugin to generate cross-browser web extensions, available for Chrome, Edge, Firefox, Opera etc...
 
 With this plugin, you can build a browser extension compatible with all browsers with modern technologies like typescript, tailwind and react.
 
-This plugin is based on [samrum/vite-plugin-web-extension](https://github.com/samrum/vite-plugin-web-extension). Though the plugin is great, it is missing some key features, like support for sass, and tailwind.
+This plugin is based on [samrum/vite-plugin-web-extension](https://github.com/samrum/vite-plugin-web-extension). Though the plugin is great, it is missing some key features, like support for Sass, and Tailwind.
 
 ## Features
 

@@ -4,10 +4,22 @@ export interface WebExtensionOptions {
 	/** The manifest to generate extension */
 	manifest: chrome.runtime.Manifest
 
-	/** use hashed filenames */
-	useHasedFileName?: boolean
+	/**
+	 * transform HTML files in dev mode
+	 * Default: false
+	 */
+	devHtmlTransform?: boolean
 
-	/** Sets the use_dynamic_url property on web accessible resources */
+	/**
+	 * use hashed filenames
+	 * Default: true
+	 */
+	useHashedFileName?: boolean
+
+	/**
+	 * Sets the use_dynamic_url property on web accessible resources
+	 * Default: true
+	 */
 	useDynamicUrl?: boolean
 
 	/** filter scripts for compiling */

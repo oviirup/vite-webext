@@ -4,9 +4,8 @@ var path = require('path')
 var crypto = require('crypto')
 var vite = require('vite')
 var fs = require('fs-extra')
-var getEtag = require('etag')
-var parse = require('content-security-policy-parser')
 var MagicString = require('magic-string')
+var getEtag = require('etag')
 
 function sanitise(...filePaths) {
 	let filePath = filePaths.join('/')
@@ -98,90 +97,11 @@ function getWasLoader(fileName, chunk) {
 	return getScriptLoader(fileName, chunk.fileName)
 }
 
-/** add hmr support to shadow dom */
-function contentScriptStyleHandler(req, res, next) {
-	const _originalEnd = res.end
-	// @ts-ignore
-	res.end = function end(chunk, ...otherArgs) {
-		if (req.url === '/@vite/client' && typeof chunk === 'string') {
-			if (
-				!/const sheetsMap/.test(chunk) ||
-				!/document\.head\.appendChild\(style\)/.test(chunk) ||
-				!/document\.head\.removeChild\(style\)/.test(chunk) ||
-				(!/style\.textContent = content/.test(chunk) &&
-					!/style\.innerHTML = content/.test(chunk))
-			) {
-				console.error(
-					'Content script HMR style support disabled -- failed to rewrite vite client',
-				)
-				res.setHeader('Etag', getEtag(chunk, { weak: true }))
-				// @ts-ignore
-				return _originalEnd.call(this, chunk, ...otherArgs)
-			}
-			chunk = chunk.replace(
-				'const sheetsMap',
-				'const styleTargets = new Set(); const styleTargetsStyleMap = new Map(); const sheetsMap',
-			)
-			chunk = chunk.replace('export {', 'export { addStyleTarget, ')
-			chunk = chunk.replace(
-				'document.head.appendChild(style)',
-				'styleTargets.size ? styleTargets.forEach(target => addStyleToTarget(style, target)) : document.head.appendChild(style)',
-			)
-			chunk = chunk.replace(
-				'document.head.removeChild(style)',
-				'styleTargetsStyleMap.get(style) ? styleTargetsStyleMap.get(style).forEach(style => style.parentNode.removeChild(style)) : document.head.removeChild(style)',
-			)
-			const styleProperty = /style\.textContent = content/.test(chunk)
-				? 'style.textContent'
-				: 'style.innerHTML'
-			const lastStyleInnerHtml = chunk.lastIndexOf(`${styleProperty} = content`)
-			chunk =
-				chunk.slice(0, lastStyleInnerHtml) +
-				chunk
-					.slice(lastStyleInnerHtml)
-					.replace(
-						`${styleProperty} = content`,
-						`${styleProperty} = content; styleTargetsStyleMap.get(style)?.forEach(style => ${styleProperty} = content)`,
-					)
-			chunk += `
-        function addStyleTarget(newStyleTarget) {
-          for (const [, style] of sheetsMap.entries()) {
-            addStyleToTarget(style, newStyleTarget, styleTargets.size !== 0);
-          }
-
-          styleTargets.add(newStyleTarget);
-        }
-
-        function addStyleToTarget(style, target, cloneStyle = true) {
-          const addedStyle = cloneStyle ? style.cloneNode(true) : style;
-          target.appendChild(addedStyle);
-
-          styleTargetsStyleMap.set(style, [...(styleTargetsStyleMap.get(style) ?? []), addedStyle]);
-        }
-      `
-			res.setHeader('Etag', getEtag(chunk, { weak: true }))
-		}
-		// @ts-ignore
-		return _originalEnd.call(this, chunk, ...otherArgs)
-	}
-	next()
-}
-const addHmrSupport = (hmrServer, scriptHashes, cspString) => {
-	const hashArray = Array.from(scriptHashes) || []
-	const scripts = ["'self'", hmrServer].concat(hashArray)
-	const CSP = parse(cspString || '')
-	CSP['script-src'] = scripts.concat(CSP['script-src'])
-	CSP['object-src'] = ["'self'"].concat(CSP['object-src'])
-	return Object.entries(CSP)
-		.map(([key, values]) => `${key} ` + [...new Set(values)].join(' '))
-		.join('; ')
-}
-
 /** Updates vite config with necessary settings */
 function updateConfig(config, pluginOptions) {
 	var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p
 	var _q, _r, _s, _t, _u, _v, _w, _x, _y, _z
-	const { manifest, useHasedFileName } = pluginOptions
+	const { manifest, useHashedFileName } = pluginOptions
 	const version = manifest.manifest_version
 	;(_a = config.build) !== null && _a !== void 0 ? _a : (config.build = {})
 	// update the build target based on manifest version
@@ -222,7 +142,7 @@ function updateConfig(config, pluginOptions) {
 	config.server.hmr.protocol = 'ws'
 	config.server.hmr.host = 'localhost'
 	// prettier-ignore
-	if (useHasedFileName && !Array.isArray(config.build.rollupOptions.output)) {
+	if (useHashedFileName && !Array.isArray(config.build.rollupOptions.output)) {
         (_m = (_x = config.build.rollupOptions.output).assetFileNames) !== null && _m !== void 0 ? _m : (_x.assetFileNames = 'assets/[ext]/[hash].[ext]');
         (_o = (_y = config.build.rollupOptions.output).chunkFileNames) !== null && _o !== void 0 ? _o : (_y.chunkFileNames = 'assets/js/[hash].js');
         (_p = (_z = config.build.rollupOptions.output).entryFileNames) !== null && _p !== void 0 ? _p : (_z.entryFileNames = 'assets/js/[hash].js');
@@ -304,6 +224,7 @@ class DevBuilder {
 		await this.writeOutputCss(manifest)
 		await this.writeOutputWas(manifest, this.WasFilter)
 		await this.writeBuildFiles(manifest, htmlFiles)
+		this.updatePermissions(manifest, port)
 		this.updateCSP(manifest)
 		// write the extension manifest file
 		await fs.writeFile(
@@ -312,13 +233,6 @@ class DevBuilder {
 		)
 	}
 	async writeBuildFiles(_manifest, _manifestHtmlFiles) {}
-	getCSP(contentSecurityPolicy) {
-		return addHmrSupport(
-			this.hmrServer,
-			this.scriptHashes,
-			contentSecurityPolicy,
-		)
-	}
 	async writeOutputHtml(htmlFiles) {
 		for (const file of htmlFiles) {
 			const { inputFile } = getFileName(file, this.viteConfig)
@@ -335,8 +249,10 @@ class DevBuilder {
 		content !== null && content !== void 0
 			? content
 			: (content = await fs.readFile(outputFile, { encoding: 'utf-8' }))
-		// apply plugin transforms
-		content = await this.devServer.transformIndexHtml(fileName, content)
+		// apply plugin html transforms
+		if (this.options.devHtmlTransform) {
+			content = await this.devServer.transformIndexHtml(fileName, content)
+		}
 		// update root paths with hmr server path
 		content = content.replace(/src="\//g, `src="${this.hmrServer}/`)
 		content = content.replace(/from "\//g, `from "${this.hmrServer}/`)
@@ -403,11 +319,141 @@ class DevBuilder {
 	}
 }
 
+/** add hmr support to shadow dom */
+function contentScriptStyleHandler(req, res, next) {
+	const _originalEnd = res.end
+	// @ts-ignore
+	res.end = function end(chunk, ...otherArgs) {
+		if (req.url === '/@vite/client' && typeof chunk === 'string') {
+			if (
+				!/const sheetsMap/.test(chunk) ||
+				!/document\.head\.appendChild\(style\)/.test(chunk) ||
+				!/document\.head\.removeChild\(style\)/.test(chunk) ||
+				(!/style\.textContent = content/.test(chunk) &&
+					!/style\.innerHTML = content/.test(chunk))
+			) {
+				console.error(
+					'Content script HMR style support disabled -- failed to rewrite vite client',
+				)
+				res.setHeader('Etag', getEtag(chunk, { weak: true }))
+				// @ts-ignore
+				return _originalEnd.call(this, chunk, ...otherArgs)
+			}
+			chunk = chunk.replace(
+				'const sheetsMap',
+				'const styleTargets = new Set(); const styleTargetsStyleMap = new Map(); const sheetsMap',
+			)
+			chunk = chunk.replace('export {', 'export { addStyleTarget, ')
+			chunk = chunk.replace(
+				'document.head.appendChild(style)',
+				'styleTargets.size ? styleTargets.forEach(target => addStyleToTarget(style, target)) : document.head.appendChild(style)',
+			)
+			chunk = chunk.replace(
+				'document.head.removeChild(style)',
+				'styleTargetsStyleMap.get(style) ? styleTargetsStyleMap.get(style).forEach(style => style.parentNode.removeChild(style)) : document.head.removeChild(style)',
+			)
+			const styleProperty = /style\.textContent = content/.test(chunk)
+				? 'style.textContent'
+				: 'style.innerHTML'
+			const lastStyleInnerHtml = chunk.lastIndexOf(`${styleProperty} = content`)
+			chunk =
+				chunk.slice(0, lastStyleInnerHtml) +
+				chunk
+					.slice(lastStyleInnerHtml)
+					.replace(
+						`${styleProperty} = content`,
+						`${styleProperty} = content; styleTargetsStyleMap.get(style)?.forEach(style => ${styleProperty} = content)`,
+					)
+			chunk += `
+        function addStyleTarget(newStyleTarget) {
+          for (const [, style] of sheetsMap.entries()) {
+            addStyleToTarget(style, newStyleTarget, styleTargets.size !== 0);
+          }
+          styleTargets.add(newStyleTarget);
+        }
+        function addStyleToTarget(style, target, cloneStyle = true) {
+          const addedStyle = cloneStyle ? style.cloneNode(true) : style;
+          target.appendChild(addedStyle);
+          styleTargetsStyleMap.set(style, [...(styleTargetsStyleMap.get(style) ?? []), addedStyle]);
+        }
+      `
+			res.setHeader('Etag', getEtag(chunk, { weak: true }))
+		}
+		// @ts-ignore
+		return _originalEnd.call(this, chunk, ...otherArgs)
+	}
+	next()
+}
+class ContentSecurityPolicy {
+	constructor(csp) {
+		this.data = {}
+		if (csp) {
+			const sections = csp.split(';').map((section) => section.trim())
+			this.data = sections.reduce((data, section) => {
+				const [key, ...values] = section.split(' ').map((item) => item.trim())
+				if (key) data[key] = values
+				return data
+			}, {})
+		}
+	}
+	/** add values to directive */
+	add(directive, ...newValues) {
+		var _a
+		const values =
+			(_a = this.data[directive]) !== null && _a !== void 0 ? _a : []
+		newValues.forEach((newValue) => {
+			if (!values.includes(newValue)) values.push(newValue)
+		})
+		this.data[directive] = values
+		return this
+	}
+	/** convert to csp string */
+	toString() {
+		const directives = Object.entries(this.data).sort(([l], [r]) => {
+			var _a, _b
+			const lo =
+				(_a = ContentSecurityPolicy.DIRECTIVE_ORDER[l]) !== null &&
+				_a !== void 0
+					? _a
+					: 2
+			const ro =
+				(_b = ContentSecurityPolicy.DIRECTIVE_ORDER[r]) !== null &&
+				_b !== void 0
+					? _b
+					: 2
+			return lo - ro
+		})
+		return directives.map((entry) => entry.flat().join(' ')).join('; ') + ';'
+	}
+}
+ContentSecurityPolicy.DIRECTIVE_ORDER = {
+	'default-src': 0,
+	'script-src': 1,
+	'object-src': 2,
+}
+const getCSP = (cspString) => {
+	const csp = new ContentSecurityPolicy(cspString)
+	csp.add('object-src', "'self'")
+	csp.add('script-src', "'self'", 'http://localhost:*', 'http://127.0.0.1:*')
+	return csp.toString()
+}
+
 class DevBuilderV2 extends DevBuilder {
-	updateCSP(manifest) {
-		manifest.content_security_policy = this.getCSP(
-			manifest.content_security_policy,
+	updatePermissions(manifest, port) {
+		var _a
+		// write host permissions
+		;(_a = manifest.permissions) !== null && _a !== void 0
+			? _a
+			: (manifest.permissions = [])
+		manifest.permissions.push(
+			`http://localhost:${port}/*`,
+			`http://127.0.0.1:${port}/*`,
 		)
+		return manifest
+	}
+	updateCSP(manifest) {
+		let currentCSP = manifest.content_security_policy
+		manifest.content_security_policy = getCSP(currentCSP)
 		return manifest
 	}
 	/** add checksum to scripts */
@@ -854,28 +900,37 @@ class ManifestV2 extends ManifestParser {
 }
 
 class DevBuilderV3 extends DevBuilder {
+	updatePermissions(manifest, port) {
+		var _a
+		;(_a = manifest.host_permissions) !== null && _a !== void 0
+			? _a
+			: (manifest.host_permissions = [])
+		manifest.host_permissions.push(
+			`http://localhost:${port}/*`,
+			`http://127.0.0.1:${port}/*`,
+		)
+		return manifest
+	}
 	async writeBuildFiles(manifest) {
-		await this.writeManifestServiceWorkerFiles(manifest)
+		await this.writeManifestSW(manifest)
 	}
 	updateCSP(manifest) {
 		var _a
 		;(_a = manifest.content_security_policy) !== null && _a !== void 0
 			? _a
 			: (manifest.content_security_policy = {})
-		manifest.content_security_policy.extension_pages = this.getCSP(
-			manifest.content_security_policy.extension_pages,
-		)
+		let currentCSP = manifest.content_security_policy.extension_pages
+		manifest.content_security_policy.extension_pages = getCSP(currentCSP)
 		return manifest
 	}
-	async writeManifestServiceWorkerFiles(manifest) {
+	async writeManifestSW(manifest) {
 		var _a, _b
 		if (
 			!((_a = manifest.background) === null || _a === void 0
 				? void 0
 				: _a.service_worker)
-		) {
+		)
 			return
-		}
 		const fileName =
 			(_b = manifest.background) === null || _b === void 0
 				? void 0
@@ -1109,6 +1164,17 @@ class ManifestParserFactory {
 }
 
 function webExtension(pluginOptions) {
+	var _a, _b, _c
+	// assign defaults
+	;(_a = pluginOptions.devHtmlTransform) !== null && _a !== void 0
+		? _a
+		: (pluginOptions.devHtmlTransform = false)
+	;(_b = pluginOptions.useDynamicUrl) !== null && _b !== void 0
+		? _b
+		: (pluginOptions.useDynamicUrl = true)
+	;(_c = pluginOptions.useHashedFileName) !== null && _c !== void 0
+		? _c
+		: (pluginOptions.useHashedFileName = true)
 	if (!pluginOptions.manifest) {
 		throw new Error('Missing manifest definition')
 	}

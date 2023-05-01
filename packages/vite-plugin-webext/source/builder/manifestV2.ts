@@ -5,14 +5,25 @@ import { createFilter } from 'vite'
 import { getFileName } from '@/utils/files'
 import { getScriptLoader } from '@/utils/loader'
 import DevBuilder from '.'
+import { getCSP } from '@/utils/server'
 
 export default class DevBuilderV2 extends DevBuilder<chrome.runtime.ManifestV2> {
-	protected updateCSP(
+	updatePermissions(
 		manifest: chrome.runtime.ManifestV2,
+		port: number,
 	): chrome.runtime.ManifestV2 {
-		manifest.content_security_policy = this.getCSP(
-			manifest.content_security_policy,
+		// write host permissions
+		manifest.permissions ??= []
+		manifest.permissions.push(
+			`http://localhost:${port}/*`,
+			`http://127.0.0.1:${port}/*`,
 		)
+		return manifest
+	}
+
+	protected updateCSP(manifest: chrome.runtime.ManifestV2) {
+		let currentCSP = manifest.content_security_policy
+		manifest.content_security_policy = getCSP(currentCSP)
 
 		return manifest
 	}

@@ -7,7 +7,7 @@ export function updateConfig(
 	config: Vite.UserConfig,
 	pluginOptions: WebExtensionOptions,
 ): Vite.UserConfig {
-	const { manifest, useHasedFileName } = pluginOptions
+	const { manifest, useHashedFileName } = pluginOptions
 	const version = manifest.manifest_version
 	config.build ??= {}
 
@@ -35,7 +35,7 @@ export function updateConfig(
 	config.server.hmr.host = 'localhost'
 
 	// prettier-ignore
-	if (useHasedFileName && !Array.isArray(config.build.rollupOptions.output)) {
+	if (useHashedFileName && !Array.isArray(config.build.rollupOptions.output)) {
 		config.build.rollupOptions.output.assetFileNames ??= 'assets/[ext]/[hash].[ext]'
 		config.build.rollupOptions.output.chunkFileNames ??= 'assets/js/[hash].js'
 		config.build.rollupOptions.output.entryFileNames ??= 'assets/js/[hash].js'

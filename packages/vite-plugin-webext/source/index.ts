@@ -7,6 +7,11 @@ import { contentScriptStyleHandler } from './utils/server'
 export default function webExtension(
 	pluginOptions: WebExtensionOptions,
 ): Vite.PluginOption {
+	// assign defaults
+	pluginOptions.devHtmlTransform ??= false
+	pluginOptions.useDynamicUrl ??= true
+	pluginOptions.useHashedFileName ??= true
+
 	if (!pluginOptions.manifest) {
 		throw new Error('Missing manifest definition')
 	}

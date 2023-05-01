@@ -4,41 +4,46 @@ import { createFilter } from 'vite'
 import { getFileName } from '@/utils/files'
 import { getScriptLoader, getSwLoader } from '@/utils/loader'
 import DevBuilder from '.'
+import { getCSP } from '@/utils/server'
 
 export default class DevBuilderV3 extends DevBuilder<chrome.runtime.ManifestV3> {
+	updatePermissions(
+		manifest: chrome.runtime.ManifestV3,
+		port: number,
+	): chrome.runtime.ManifestV3 {
+		manifest.host_permissions ??= []
+		manifest.host_permissions.push(
+			`http://localhost:${port}/*`,
+			`http://127.0.0.1:${port}/*`,
+		)
+		return manifest
+	}
+
 	async writeBuildFiles(manifest: chrome.runtime.ManifestV3): Promise<void> {
-		await this.writeManifestServiceWorkerFiles(manifest)
+		await this.writeManifestSW(manifest)
 	}
 
 	updateCSP(manifest: chrome.runtime.ManifestV3): chrome.runtime.ManifestV3 {
 		manifest.content_security_policy ??= {}
 
-		manifest.content_security_policy.extension_pages = this.getCSP(
-			manifest.content_security_policy.extension_pages,
-		)
+		let currentCSP = manifest.content_security_policy.extension_pages
+		manifest.content_security_policy.extension_pages = getCSP(currentCSP)
 
 		return manifest
 	}
 
-	private async writeManifestServiceWorkerFiles(
-		manifest: chrome.runtime.ManifestV3,
-	) {
-		if (!manifest.background?.service_worker) {
-			return
-		}
+	private async writeManifestSW(manifest: chrome.runtime.ManifestV3) {
+		if (!manifest.background?.service_worker) return
 
 		const fileName = manifest.background?.service_worker
-
 		const serviceWorkerLoader = getSwLoader(`${this.hmrServer}/${fileName}`)
 
 		manifest.background.service_worker = serviceWorkerLoader.fileName
 
 		const outFile = `${this.outDir}/${serviceWorkerLoader.fileName}`
-
 		const outFileDir = path.dirname(outFile)
 
 		await ensureDir(outFileDir)
-
 		await writeFile(outFile, serviceWorkerLoader.source)
 	}
 

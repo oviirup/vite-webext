@@ -1,4 +1,3 @@
-import { addHmrSupport } from '@/utils/server'
 import { getFileName } from '@/utils/files'
 import { getScriptLoader } from '@/utils/loader'
 import { filterScripts, getModule } from '@/utils/vite'
@@ -55,6 +54,7 @@ export default abstract class DevBuilder<
 		await this.writeOutputWas(manifest, this.WasFilter)
 		await this.writeBuildFiles(manifest, htmlFiles)
 
+		this.updatePermissions(manifest, port)
 		this.updateCSP(manifest)
 
 		// write the extension manifest file
@@ -64,20 +64,16 @@ export default abstract class DevBuilder<
 		)
 	}
 
+	protected abstract updatePermissions(
+		manifest: Manifest,
+		port: number,
+	): Manifest
 	protected abstract updateCSP(manifest: Manifest): Manifest
 
 	protected async writeBuildFiles(
 		_manifest: Manifest,
 		_manifestHtmlFiles: string[],
 	): Promise<void> {}
-
-	protected getCSP(contentSecurityPolicy: string | undefined): string {
-		return addHmrSupport(
-			this.hmrServer,
-			this.scriptHashes,
-			contentSecurityPolicy,
-		)
-	}
 
 	protected async writeOutputHtml(htmlFiles: string[]) {
 		for (const file of htmlFiles) {
@@ -99,9 +95,10 @@ export default abstract class DevBuilder<
 		let content = getModule(outputFile)
 		content ??= await fs.readFile(outputFile, { encoding: 'utf-8' })
 
-		// apply plugin transforms
-		content = await this.devServer!.transformIndexHtml(fileName, content)
-
+		// apply plugin html transforms
+		if (this.options.devHtmlTransform) {
+			content = await this.devServer!.transformIndexHtml(fileName, content)
+		}
 		// update root paths with hmr server path
 		content = content.replace(/src="\//g, `src="${this.hmrServer}/`)
 		content = content.replace(/from "\//g, `from "${this.hmrServer}/`)

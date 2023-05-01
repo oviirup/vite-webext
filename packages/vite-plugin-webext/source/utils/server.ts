@@ -1,5 +1,4 @@
 import getEtag from 'etag'
-import parse from 'content-security-policy-parser'
 
 /** add hmr support to shadow dom */
 export function contentScriptStyleHandler(
@@ -61,14 +60,11 @@ export function contentScriptStyleHandler(
           for (const [, style] of sheetsMap.entries()) {
             addStyleToTarget(style, newStyleTarget, styleTargets.size !== 0);
           }
-
           styleTargets.add(newStyleTarget);
         }
-
         function addStyleToTarget(style, target, cloneStyle = true) {
           const addedStyle = cloneStyle ? style.cloneNode(true) : style;
           target.appendChild(addedStyle);
-
           styleTargetsStyleMap.set(style, [...(styleTargetsStyleMap.get(style) ?? []), addedStyle]);
         }
       `
@@ -83,19 +79,50 @@ export function contentScriptStyleHandler(
 	next()
 }
 
-export const addHmrSupport = (
-	hmrServer: string,
-	scriptHashes: Set<string>,
-	cspString?: string | undefined,
-): string => {
-	const hashArray = Array.from(scriptHashes) || []
-	const scripts = ["'self'", hmrServer].concat(hashArray)
+type CspDirective = 'default-src' | 'script-src' | 'object-src'
+export class ContentSecurityPolicy {
+	private static DIRECTIVE_ORDER: Record<string, number | undefined> = {
+		'default-src': 0,
+		'script-src': 1,
+		'object-src': 2,
+	}
 
-	const CSP = parse(cspString || '')
-	CSP['script-src'] = scripts.concat(CSP['script-src'])
-	CSP['object-src'] = ["'self'"].concat(CSP['object-src'])
+	data: Record<string, string[]> = {}
+	constructor(csp?: string) {
+		if (csp) {
+			const sections = csp.split(';').map((section) => section.trim())
+			this.data = sections.reduce<Record<string, string[]>>((data, section) => {
+				const [key, ...values] = section.split(' ').map((item) => item.trim())
+				if (key) data[key] = values
+				return data
+			}, {})
+		}
+	}
+	/** add values to directive */
+	add(directive: CspDirective, ...newValues: string[]): ContentSecurityPolicy {
+		const values = this.data[directive] ?? []
+		newValues.forEach((newValue) => {
+			if (!values.includes(newValue)) values.push(newValue)
+		})
+		this.data[directive] = values
+		return this
+	}
+	/** convert to csp string */
+	toString(): string {
+		const directives = Object.entries(this.data).sort(([l], [r]) => {
+			const lo = ContentSecurityPolicy.DIRECTIVE_ORDER[l] ?? 2
+			const ro = ContentSecurityPolicy.DIRECTIVE_ORDER[r] ?? 2
+			return lo - ro
+		})
+		return directives.map((entry) => entry.flat().join(' ')).join('; ') + ';'
+	}
+}
 
-	return Object.entries(CSP)
-		.map(([key, values]) => `${key} ` + [...new Set(values)].join(' '))
-		.join('; ')
+export const getCSP = (cspString?: string | undefined): string => {
+	const csp = new ContentSecurityPolicy(cspString)
+
+	csp.add('object-src', "'self'")
+	csp.add('script-src', "'self'", 'http://localhost:*', 'http://127.0.0.1:*')
+
+	return csp.toString()
 }
