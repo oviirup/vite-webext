@@ -1,9 +1,8 @@
 let Browser = chrome ?? browser
 
-module.exports.mountShadow = async function (container) {
-	const isDev = import.meta.env.DEV || false
+module.exports.mountShadow = async function (container = null, mode = 'open') {
 	if (!container) container = document.createElement('div')
-	const shadow = container.attachShadow({ mode: isDev ? 'open' : 'closed' })
+	const shadow = container.attachShadow({ mode })
 	const root = document.createElement('div')
 
 	// enables HMR in development mode

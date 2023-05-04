@@ -3,13 +3,11 @@ interface ImportMeta {
 }
 
 declare module 'vite-plugin-webext/client' {
-	export function mountShadow<
-		Container = HTMLDivElement,
-		Root = HTMLDivElement,
-	>(
-		container?: Container,
+	export function mountShadow<Container = HTMLDivElement>(
+		container?: Container | null,
+		mode?: 'open' | 'closed',
 	): Promise<{
 		container: Container
-		root: Root
+		root: HTMLDivElement
 	}>
 }
