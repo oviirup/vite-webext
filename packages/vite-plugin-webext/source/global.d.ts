@@ -19,6 +19,7 @@ declare global {
 	}
 
 	namespace Vite {
+		type BuildMode = 'BUILD' | 'DEV' | 'WATCH'
 		type Manifest = _Vite.Manifest
 		type ManifestChunk = _Vite.ManifestChunk
 		type PluginOption = _Vite.PluginOption
@@ -27,6 +28,7 @@ declare global {
 		type HmrOptions = _Vite.HmrOptions
 		type ResolvedConfig = _Vite.ResolvedConfig
 		type ViteDevServer = _Vite.ViteDevServer
+		type ConfigEnv = _Vite.ConfigEnv
 
 		namespace Connect {
 			type IncomingMessage = _Vite.Connect.IncomingMessage

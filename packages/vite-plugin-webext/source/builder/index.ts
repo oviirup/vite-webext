@@ -2,7 +2,7 @@ import { getFileName } from '@/utils/files'
 import { getScriptLoader } from '@/utils/loader'
 import { filterScripts, getModule } from '@/utils/vite'
 import fs from 'fs-extra'
-import path from 'path'
+import path from 'node:path'
 import { createFilter, normalizePath } from 'vite'
 
 export default abstract class DevBuilder<

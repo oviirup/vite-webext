@@ -1,7 +1,7 @@
-import path from 'path'
-import { createHash } from 'crypto'
-import { normalizePath } from 'vite'
 import { existsSync } from 'fs-extra'
+import { createHash } from 'node:crypto'
+import path from 'node:path'
+import { normalizePath } from 'vite'
 
 export function sanitise(...filePaths: string[]) {
 	let filePath = filePaths.join('/')

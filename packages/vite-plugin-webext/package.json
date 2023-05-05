@@ -1,6 +1,6 @@
 {
 	"name": "vite-plugin-webext",
-	"version": "1.2.6",
+	"version": "1.2.7",
 	"description": "A vite plugin for generating cross browser platform, ES module based web extensions",
 	"main": "dist/index.cjs",
 	"module": "dist/index.mjs",
@@ -14,8 +14,7 @@
 	],
 	"private": false,
 	"scripts": {
-		"build": "tsc && rollup -c",
-		"postbuild": "prettier --write ./dist",
+		"build": "tsc && rollup -c && prettier --write ./dist",
 		"watch": "rollup -c -w",
 		"lint": "prettier --write ."
 	},

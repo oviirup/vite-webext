@@ -1,11 +1,11 @@
-import crypto from 'crypto'
-import { ensureDir, writeFile } from 'fs-extra'
-import path from 'path'
-import { createFilter } from 'vite'
 import { getFileName } from '@/utils/files'
 import { getScriptLoader } from '@/utils/loader'
-import DevBuilder from '.'
 import { getCSP } from '@/utils/server'
+import { ensureDir, writeFile } from 'fs-extra'
+import crypto from 'node:crypto'
+import path from 'node:path'
+import { createFilter } from 'vite'
+import DevBuilder from '.'
 
 export default class DevBuilderV2 extends DevBuilder<chrome.runtime.ManifestV2> {
 	updatePermissions(

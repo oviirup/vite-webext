@@ -1,8 +1,8 @@
 import ManifestParserFactory from './parser'
-import { appendInputScripts } from './utils/rollup'
-import { getModule, transformImports, updateConfig } from './utils/vite'
 import type ManifestParser from './parser/manifestParser'
+import { appendInputScripts } from './utils/rollup'
 import { contentScriptStyleHandler } from './utils/server'
+import { getModule, transformImports, updateConfig } from './utils/vite'
 
 export default function webExtension(
 	pluginOptions: WebExtensionOptions,

@@ -1,9 +1,8 @@
-import { Result } from './manifestParser'
-import { isHTML, getFileName } from '@/utils/files'
-import DevBuilderV2 from '../builder/manifestV2'
-import ManifestParser from './manifestParser'
-import DevBuilder from '../builder'
+import DevBuilder from '@/builder'
+import DevBuilderV2 from '@/builder/manifestV2'
+import { getFileName, isHTML } from '@/utils/files'
 import { OutputBundle } from 'rollup'
+import ManifestParser, { Result } from './manifestParser'
 
 type Manifest = chrome.runtime.ManifestV2
 type ManifestParseResult = Result<Manifest>
