@@ -4,7 +4,7 @@ import typescript from '@rollup/plugin-typescript'
 const require = createRequire(import.meta.url)
 const pkg = require('./package.json')
 
-const external = ['path', 'fs', 'crypto'].concat(
+const external = ['node:path', 'node:fs', 'node:crypto'].concat(
 	Object.keys(pkg.dependencies ?? {}),
 )
 

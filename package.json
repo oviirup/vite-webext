@@ -1,18 +1,17 @@
 {
 	"name": "vite-webext",
-	"version": "1.0.0",
+	"version": "1.2.0",
 	"private": true,
 	"workspaces": [
 		"packages/*"
 	],
 	"scripts": {
-		"postinstall": "husky install .github/husky",
 		"build": "turbo run build",
 		"watch": "turbo run watch"
 	},
 	"devDependencies": {
 		"turbo": "latest",
-		"husky": "8.0.0"
+		"prettier": "latest"
 	},
 	"dependencies": {}
 }

@@ -46,7 +46,7 @@ export default abstract class DevBuilder<
 			this.viteConfig.publicDir,
 		)
 		const publicDirExists = await fs.pathExists(publicDir)
-		if (publicDirExists) fs.copy(publicDir, this.outDir)
+		if (publicDirExists) await fs.copy(publicDir, this.outDir)
 
 		await this.writeOutputHtml(htmlFiles)
 		await this.writeOutputScripts(manifest)

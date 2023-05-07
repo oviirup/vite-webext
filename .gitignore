@@ -1,12 +1,13 @@
 .turbo
 .vscode
 node_modules
+dist
 *-debug.log*
 *-error.log*
 
 # package-lock
 package-lock.json
-pnpm-lock.yaml
+pnpm-*.yaml
 yarn.lock
 
 # test packages
