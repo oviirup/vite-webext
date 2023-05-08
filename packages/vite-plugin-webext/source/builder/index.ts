@@ -1,7 +1,8 @@
 import { getFileName } from '@/utils/files'
 import { getScriptLoader } from '@/utils/loader'
 import { filterScripts, getModule } from '@/utils/vite'
-import fs from 'fs-extra'
+import { copy, emptyDir, ensureDir, pathExists } from 'fs-extra'
+import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { createFilter, normalizePath } from 'vite'
 
@@ -39,14 +40,14 @@ export default abstract class DevBuilder<
 		this.hmrServer = this.getHmrServer(port)
 
 		// copies the content of public ditrectory
-		await fs.emptyDir(this.outDir)
+		await emptyDir(this.outDir)
 		const publicDir = path.resolve(
 			process.cwd(),
 			this.viteConfig.root,
 			this.viteConfig.publicDir,
 		)
-		const publicDirExists = await fs.pathExists(publicDir)
-		if (publicDirExists) await fs.copy(publicDir, this.outDir)
+		const publicDirExists = await pathExists(publicDir)
+		if (publicDirExists) await copy(publicDir, this.outDir)
 
 		await this.writeOutputHtml(htmlFiles)
 		await this.writeOutputScripts(manifest)
@@ -58,7 +59,7 @@ export default abstract class DevBuilder<
 		this.updateCSP(manifest)
 
 		// write the extension manifest file
-		await fs.writeFile(
+		await writeFile(
 			`${this.outDir}/manifest.json`,
 			JSON.stringify(manifest, null, 2),
 		)
@@ -93,7 +94,7 @@ export default abstract class DevBuilder<
 		outputFile: string,
 	): Promise<void> {
 		let content = getModule(outputFile)
-		content ??= await fs.readFile(outputFile, { encoding: 'utf-8' })
+		content ??= await readFile(outputFile, { encoding: 'utf-8' })
 
 		// apply plugin html transforms
 		if (this.options.devHtmlTransform) {
@@ -112,8 +113,8 @@ export default abstract class DevBuilder<
 		const outFile = `${this.outDir}/${fileName}`
 		const outFileDir = path.dirname(outFile)
 
-		await fs.ensureDir(outFileDir)
-		await fs.writeFile(outFile, content)
+		await ensureDir(outFileDir)
+		await writeFile(outFile, content)
 	}
 
 	protected parseScriptHashes(_content: string): void {}
@@ -132,8 +133,8 @@ export default abstract class DevBuilder<
 				const outFile = `${this.outDir}/${loader.fileName}`
 				const outFileDir = path.dirname(outFile)
 
-				await fs.ensureDir(outFileDir)
-				await fs.writeFile(outFile, loader.source)
+				await ensureDir(outFileDir)
+				await writeFile(outFile, loader.source)
 			}
 		}
 	}
@@ -146,13 +147,14 @@ export default abstract class DevBuilder<
 
 			for (const [j, fileName] of script.css.entries()) {
 				const { inputFile, outputFile } = getFileName(fileName, this.viteConfig)
+				const outputCss = outputFile + '.css'
 				if (!inputFile) continue
-				manifest.content_scripts[i].css![j] = outputFile
-				await this.writeManifestCssFile(outputFile, inputFile)
+				manifest.content_scripts[i].css![j] = outputCss
+				await this.writeManifestCssFile(outputCss, inputFile)
 
 				this.devServer!.watcher.on('change', async (path) => {
 					if (normalizePath(path) !== inputFile) return
-					await this.writeManifestCssFile(outputFile, fileName)
+					await this.writeManifestCssFile(outputCss, fileName)
 				})
 			}
 		}
@@ -170,8 +172,8 @@ export default abstract class DevBuilder<
 		const outFile = `${this.outDir}/${loaderFile.fileName}`
 		const outFileDir = path.dirname(outFile)
 
-		await fs.ensureDir(outFileDir)
-		await fs.writeFile(outFile, loaderFile.source)
+		await ensureDir(outFileDir)
+		await writeFile(outFile, loaderFile.source)
 	}
 
 	protected abstract writeOutputWas(

@@ -1,4 +1,4 @@
-import { existsSync } from 'fs-extra'
+import { existsSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { normalizePath } from 'vite'
