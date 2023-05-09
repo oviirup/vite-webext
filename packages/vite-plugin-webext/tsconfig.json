@@ -1,9 +1,9 @@
 {
 	"compilerOptions": {
 		"strict": true,
-		"target": "ES6",
+		"target": "ES2017",
 		"module": "ESNext",
-		"lib": ["ES6", "DOM"],
+		"lib": ["ES2017", "DOM"],
 		"esModuleInterop": true,
 		"moduleResolution": "node",
 		"noEmit": true,

@@ -13,7 +13,7 @@ const external = [
 ]
 
 export default {
-	input: 'source/index.ts',
+	input: 'source/plugin.ts',
 	plugins: [typescript({ sourceMap: false })],
 	external,
 	output: [

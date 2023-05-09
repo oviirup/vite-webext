@@ -1,5 +1,3 @@
-let Browser = chrome ?? browser
-
 export async function mountShadow(container = null, mode = 'open') {
 	if (!container) container = document.createElement('div')
 	const shadow = container.attachShadow({ mode })
@@ -12,20 +10,20 @@ export async function mountShadow(container = null, mode = 'open') {
 	}
 	// runs on production build
 	else {
-		const cssPaths = import.meta.CURRENT_CHUNK_CSS_PATHS
+		const cssPaths = import.meta.CURRENT_CHUNK_CSS_PATHS ?? []
 		// inject css to shadow root
 		for (const css of cssPaths) {
 			const style = document.createElement('link')
 			style.setAttribute('rel', 'stylesheet')
-			style.setAttribute('href', Browser.runtime.getURL(css))
+			if (typeof chrome.runtime.getURL !== 'undefined') {
+				style.setAttribute('href', chrome.runtime.getURL(css))
+			} else {
+				style.setAttribute('href', browser.runtime.getURL(css))
+			}
 			shadow.appendChild(style)
 		}
 	}
-
 	shadow?.appendChild(root)
 
-	return {
-		container,
-		root,
-	}
+	return { container, root }
 }
