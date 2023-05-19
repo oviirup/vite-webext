@@ -9,15 +9,27 @@ const external = [
 	'node:fs',
 	'node:fs/promises',
 	'node:crypto',
+	'/@vite/client',
 	...Object.keys(pkg.dependencies ?? {}),
 ]
 
-export default {
+const plugin = {
 	input: 'source/plugin.ts',
-	plugins: [typescript({ sourceMap: false })],
+	plugins: [typescript()],
 	external,
 	output: [
 		{ format: 'cjs', file: pkg.main, exports: 'auto' },
 		{ format: 'esm', file: pkg.module },
 	],
 }
+
+const client = {
+	input: 'source/client.ts',
+	plugins: [typescript()],
+	external,
+	output: [
+		{ format: 'esm', file: 'client/index.mjs' }
+	],
+}
+
+export default [plugin, client]

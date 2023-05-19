@@ -9,6 +9,8 @@
 		"noEmit": true,
 		"skipLibCheck": true,
 		"baseUrl": ".",
+		"sourceMap": false,
+		"declaration": false,
 		"paths": { "@/*": ["source/*"] }
 	},
 	"include": ["**/*.ts"],
