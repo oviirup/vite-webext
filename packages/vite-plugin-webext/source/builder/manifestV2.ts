@@ -31,7 +31,7 @@ export default class DevBuilderV2 extends DevBuilder<chrome.runtime.ManifestV2> 
 
 	/** add checksum to scripts */
 	protected parseScriptHashes(content: string) {
-		const matches = content.matchAll(/<script.*?>([^<]+)<\/script>/gs)
+		const matches = content.matchAll(/<script.*?>([^<]+)<\/script>/igs)
 		for (const match of matches) {
 			const shasum = crypto.createHash('sha256')
 			shasum.update(match[1])
