@@ -4,6 +4,7 @@
 	"jsxSingleQuote": true,
 	"quoteProps": "consistent",
 	"arrowParens": "always",
+	"plugins": ["prettier-plugin-imports"],
 	"useTabs": true,
 	"tabWidth": 2,
 	"trailingComma": "all",

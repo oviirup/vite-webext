@@ -1,0 +1,9 @@
+node_modules
+dist
+client
+.turbo
+*.d.ts
+
+package-lock.json
+pnpm-*.yaml
+yarn.lock

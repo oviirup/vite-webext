@@ -7,11 +7,13 @@
 	],
 	"scripts": {
 		"build": "turbo run build",
+		"format": "prettier --write .",
 		"watch": "turbo run watch"
 	},
+	"dependencies": {},
 	"devDependencies": {
-		"turbo": "latest",
-		"prettier": "latest"
-	},
-	"dependencies": {}
+		"prettier": "latest",
+		"prettier-plugin-imports": "latest",
+		"turbo": "latest"
+	}
 }

@@ -1,8 +1,5 @@
 .turbo
-.vscode
 node_modules
-dist
-client
 *-debug.log*
 *-error.log*
 
@@ -10,6 +7,3 @@ client
 package-lock.json
 pnpm-*.yaml
 yarn.lock
-
-# test packages
-*-v*.*.*.tgz

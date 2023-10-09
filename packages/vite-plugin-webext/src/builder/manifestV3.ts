@@ -1,9 +1,9 @@
+import { writeFile } from 'node:fs/promises'
+import path from 'node:path'
 import { getFileName } from '@/utils/files'
 import { getScriptLoader, getSwLoader } from '@/utils/loader'
 import { getCSP } from '@/utils/server'
 import { ensureDir } from 'fs-extra'
-import { writeFile } from 'node:fs/promises'
-import path from 'node:path'
 import { createFilter } from 'vite'
 import DevBuilder from './index'
 

@@ -1,0 +1,11 @@
+{
+	"editor.formatOnSave": true,
+	"explorer.sortOrder": "type",
+	"explorer.fileNesting.enabled": true,
+	"explorer.fileNesting.patterns": {
+		"*.js": "$(capture).cjs, $(capture).mjs, $(capture).*.js, $(capture).*.ts, $(capture).ts.snap",
+		"*.ts": "$(capture).js, $(capture).*.js, $(capture).*.ts, $(capture).ts.snap",
+		"package.json": ".npm*, .nvmrc, .pnpm*, pnpm*, package-lock.json, yarn*, .github*, .gitlab*, .gitpod*, .huskyrc*, .nodemon*, .prettier*, .editorconfig, .lintstagedrc*, .huskyrc*",
+		"readme*": "changelog*, code_of_conduct*, license*, readme*, security.md"
+	}
+}

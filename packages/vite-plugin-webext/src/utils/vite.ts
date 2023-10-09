@@ -1,7 +1,7 @@
+import path from 'node:path'
 import MagicString from 'magic-string'
 import { createFilter } from 'vite'
 import { sanitise } from './files'
-import path from 'node:path'
 
 /** Updates vite config with necessary settings */
 export function updateConfig(

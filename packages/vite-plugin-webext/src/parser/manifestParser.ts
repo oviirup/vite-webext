@@ -199,7 +199,7 @@ export default abstract class ManifestParser<
 		/** gets all css output files of current script */
 		chunk.code = chunk.code.replace(
 			new RegExp('import.meta.CURRENT_CHUNK_CSS_PATHS', 'g'),
-			`[${[...metadata.css].map((path) => `"${path}"`).join(',')}]`,
+			`[${[...metadata.css].map((e) => JSON.stringify(e)).join(',')}]`,
 		)
 		return {
 			fileName: loader.fileName,
@@ -254,18 +254,11 @@ export default abstract class ManifestParser<
 		chunkId: string,
 		bundle: Rollup.OutputBundle,
 		includeAsAsset: boolean,
-		metadata: {
-			css: Set<string>
-			assets: Set<string>
-		} | null = null,
-	): {
-		css: Set<string>
-		assets: Set<string>
-	} {
+		metadata: { css: Set<string>; assets: Set<string> } | null = null,
+	): { css: Set<string>; assets: Set<string> } {
 		// clear metadata
 		if (metadata === null) {
 			this.parseChunkIds.clear()
-
 			metadata = {
 				css: new Set<string>(),
 				assets: new Set<string>(),

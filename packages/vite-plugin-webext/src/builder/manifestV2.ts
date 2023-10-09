@@ -1,10 +1,10 @@
+import crypto from 'node:crypto'
+import { writeFile } from 'node:fs/promises'
+import path from 'node:path'
 import { getFileName } from '@/utils/files'
 import { getScriptLoader } from '@/utils/loader'
 import { getCSP } from '@/utils/server'
 import { ensureDir } from 'fs-extra'
-import { writeFile } from 'node:fs/promises'
-import crypto from 'node:crypto'
-import path from 'node:path'
 import { createFilter } from 'vite'
 import DevBuilder from '.'
 

@@ -1,8 +1,7 @@
+import * as http from 'node:http'
 import * as _Rollup from 'rollup'
 import * as _Vite from 'vite'
-import * as http from 'node:http'
 import 'vite/client'
-
 import { WebExtensionOptions as _Options } from './plugin'
 
 declare global {

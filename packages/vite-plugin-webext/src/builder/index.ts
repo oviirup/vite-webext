@@ -1,9 +1,9 @@
+import { readFile, writeFile } from 'node:fs/promises'
+import path from 'node:path'
 import { getFileName } from '@/utils/files'
 import { getScriptLoader } from '@/utils/loader'
 import { filterScripts, getModule } from '@/utils/vite'
 import { copy, emptyDir, ensureDir, pathExists } from 'fs-extra'
-import { readFile, writeFile } from 'node:fs/promises'
-import path from 'node:path'
 import { createFilter, normalizePath } from 'vite'
 
 export default abstract class DevBuilder<
