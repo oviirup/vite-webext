@@ -8,7 +8,6 @@ export default function webExtension(
 	pluginOptions: WebExtensionOptions,
 ): Vite.PluginOption {
 	// assign defaults
-	pluginOptions.devHtmlTransform ??= false
 	pluginOptions.useDynamicUrl ??= true
 	pluginOptions.useHashedFileName ??= true
 
@@ -60,7 +59,7 @@ export default function webExtension(
 		buildStart: function () {
 			emitQueue.forEach((file) => {
 				this.emitFile(file)
-				this.addWatchFile(file.fileName ?? file.name!)
+				if (file.fileName) this.addWatchFile(file.fileName)
 			})
 			emitQueue = []
 		},
@@ -72,9 +71,7 @@ export default function webExtension(
 		transform: (code) => transformImports(code, userConfig),
 
 		generateBundle: async function (_options, bundle) {
-			const { emitFiles } = await manifestParser.parseOutput(
-				bundle as Rollup.OutputBundle,
-			)
+			const { emitFiles } = await manifestParser.parseOutput(bundle)
 			emitFiles.forEach(this.emitFile)
 		},
 	}

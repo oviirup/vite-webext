@@ -5,12 +5,6 @@ export interface WebExtensionOptions {
 	manifest: chrome.runtime.Manifest
 
 	/**
-	 * transform HTML files in dev mode
-	 * Default: false
-	 */
-	devHtmlTransform?: boolean
-
-	/**
 	 * use hashed filenames
 	 * Default: true
 	 */

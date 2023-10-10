@@ -8,7 +8,12 @@ import ManifestParser, { Result } from './manifestParser'
 
 export default class ManifestV3 extends ManifestParser<Manifest> {
 	protected createDevBuilder(): DevBuilder<Manifest> {
-		return new DevBuilderV3(this.viteConfig, this.options, this.devServer)
+		return new DevBuilderV3(
+			this.viteConfig,
+			this.options,
+			this.devServer,
+			this.inputManifest,
+		)
 	}
 
 	/** get all html files from */

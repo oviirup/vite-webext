@@ -1,6 +1,7 @@
 import MagicString from 'magic-string'
 import { createFilter } from 'vite'
 import { sanitise } from './files'
+import path from 'node:path'
 
 /** Updates vite config with necessary settings */
 export function updateConfig(
@@ -16,6 +17,10 @@ export function updateConfig(
 		if (version === 2) config.build.target = ['chrome64', 'firefox89']
 		if (version === 3) config.build.target = ['chrome91']
 	}
+
+	// define output directory
+	config.build.outDir ??= path.resolve(process.cwd(), '.extension')
+	let outDir = config.build.outDir
 
 	config.build.minify ??= true
 	config.build.emptyOutDir ??= true

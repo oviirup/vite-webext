@@ -10,6 +10,7 @@ export default abstract class DevBuilder<
 	Manifest extends chrome.runtime.Manifest,
 > {
 	protected hmrServer = ''
+	protected hmrViteClient = ''
 	protected scriptHashes = new Set<string>()
 	protected outDir: string
 	protected WasFilter: ReturnType<typeof createFilter>
@@ -17,7 +18,8 @@ export default abstract class DevBuilder<
 	constructor(
 		private viteConfig: Vite.ResolvedConfig,
 		private options: WebExtensionOptions,
-		private devServer?: Vite.ViteDevServer,
+		private devServer: Vite.ViteDevServer | undefined,
+		protected manifest: Manifest,
 	) {
 		this.outDir = path.resolve(
 			process.cwd(),
@@ -29,15 +31,14 @@ export default abstract class DevBuilder<
 	}
 
 	async writeBuild({
-		port,
-		manifest,
+		devServerPort,
 		htmlFiles,
 	}: {
-		port: number
-		manifest: Manifest
+		devServerPort: number
 		htmlFiles: string[]
 	}) {
-		this.hmrServer = this.getHmrServer(port)
+		this.hmrServer = this.getHmrServer(devServerPort)
+		this.hmrViteClient = `${this.hmrServer}/@vite/client`
 
 		// copies the content of public ditrectory
 		await emptyDir(this.outDir)
@@ -50,29 +51,22 @@ export default abstract class DevBuilder<
 		if (publicDirExists) await copy(publicDir, this.outDir)
 
 		await this.writeOutputHtml(htmlFiles)
-		await this.writeOutputScripts(manifest)
-		await this.writeOutputCss(manifest)
-		await this.writeOutputWas(manifest, this.WasFilter)
-		await this.writeBuildFiles(manifest, htmlFiles)
-
-		this.updatePermissions(manifest, port)
-		this.updateCSP(manifest)
+		await this.writeOutputScripts()
+		await this.writeOutputCss()
+		await this.writeOutputWas(this.WasFilter)
+		await this.writeBuildFiles(htmlFiles)
+		this.updateCSP()
 
 		// write the extension manifest file
 		await writeFile(
 			`${this.outDir}/manifest.json`,
-			JSON.stringify(manifest, null, 2),
+			JSON.stringify(this.manifest, null, 2),
 		)
 	}
 
-	protected abstract updatePermissions(
-		manifest: Manifest,
-		port: number,
-	): Manifest
-	protected abstract updateCSP(manifest: Manifest): Manifest
+	protected abstract updateCSP(): void
 
 	protected async writeBuildFiles(
-		_manifest: Manifest,
 		_manifestHtmlFiles: string[],
 	): Promise<void> {}
 
@@ -92,22 +86,23 @@ export default abstract class DevBuilder<
 	private async writeManifestHtmlFile(
 		fileName: string,
 		outputFile: string,
-	): Promise<void> {
+	): Promise<string> {
 		let content = getModule(outputFile)
 		content ??= await readFile(outputFile, { encoding: 'utf-8' })
+		content = await this.devServer!.transformIndexHtml(fileName, content)
 
-		// apply plugin html transforms
-		if (this.options.devHtmlTransform) {
-			content = await this.devServer!.transformIndexHtml(fileName, content)
-		}
-		// update root paths with hmr server path
-		content = content.replace(/src="\//g, `src="${this.hmrServer}/`)
-		content = content.replace(/from "\//g, `from "${this.hmrServer}/`)
+		// get file path relative to hmr server
+		let devServerFileName = `${this.hmrServer}${path
+			.resolve(this.viteConfig.root, fileName)
+			.slice(this.viteConfig.root.length)}`
+		// add base url to head
+		let baseElement = `<base href="${devServerFileName}">`
+		let headRegex = /<head.*?>/ims
+		// resolve relative links
+		content = content.match(headRegex)
+			? content.replace(headRegex, `$&${baseElement}`)
+			: content.replace(/<html.*?>/ims, `$&<head>${baseElement}</head>`)
 
-		// update relative paths
-		const inputFileDir = path.dirname(fileName)
-		const dir = inputFileDir ? `${inputFileDir}/` : ''
-		content = content.replace(/src="\.\//g, `src="${this.hmrServer}/${dir}`)
 		this.parseScriptHashes(content)
 
 		const outFile = `${this.outDir}/${fileName}`
@@ -115,21 +110,24 @@ export default abstract class DevBuilder<
 
 		await ensureDir(outFileDir)
 		await writeFile(outFile, content)
+
+		return fileName
 	}
 
 	protected parseScriptHashes(_content: string): void {}
 
-	protected async writeOutputScripts(manifest: Manifest) {
-		if (!manifest.content_scripts) return
+	protected async writeOutputScripts() {
+		let manifestCS = this.manifest.content_scripts
+		if (!manifestCS) return
 
-		for (const [i, script] of manifest.content_scripts.entries()) {
+		for (const [i, script] of manifestCS.entries()) {
 			if (!script.js) continue
 
 			for (const [j, file] of script.js.entries()) {
 				const { outputFile } = getFileName(file)
 				const loader = getScriptLoader(outputFile, `${this.hmrServer}/${file}`)
 
-				manifest.content_scripts[i].js![j] = loader.fileName
+				manifestCS[i].js![j] = loader.fileName
 				const outFile = `${this.outDir}/${loader.fileName}`
 				const outFileDir = path.dirname(outFile)
 
@@ -139,17 +137,18 @@ export default abstract class DevBuilder<
 		}
 	}
 
-	protected async writeOutputCss(manifest: Manifest) {
-		if (!manifest.content_scripts) return
+	protected async writeOutputCss() {
+		let manifestCS = this.manifest.content_scripts
+		if (!manifestCS) return
 
-		for (const [i, script] of manifest.content_scripts.entries()) {
+		for (const [i, script] of manifestCS.entries()) {
 			if (!script.css) continue
 
 			for (const [j, fileName] of script.css.entries()) {
 				const { inputFile, outputFile } = getFileName(fileName, this.viteConfig)
 				const outputCss = outputFile + '.css'
 				if (!inputFile) continue
-				manifest.content_scripts[i].css![j] = outputCss
+				manifestCS[i].css![j] = outputCss
 				await this.writeManifestCssFile(outputCss, inputFile)
 
 				this.devServer!.watcher.on('change', async (path) => {
@@ -177,7 +176,6 @@ export default abstract class DevBuilder<
 	}
 
 	protected abstract writeOutputWas(
-		manifest: Manifest,
 		wasFilter: ReturnType<typeof createFilter>,
 	): Promise<void>
 

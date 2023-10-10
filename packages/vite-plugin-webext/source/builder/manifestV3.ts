@@ -8,38 +8,22 @@ import { createFilter } from 'vite'
 import DevBuilder from './index'
 
 export default class DevBuilderV3 extends DevBuilder<chrome.runtime.ManifestV3> {
-	updatePermissions(
-		manifest: chrome.runtime.ManifestV3,
-		port: number,
-	): chrome.runtime.ManifestV3 {
-		manifest.host_permissions ??= []
-		manifest.host_permissions.push(
-			`http://localhost:${port}/*`,
-			`http://127.0.0.1:${port}/*`,
-		)
-		return manifest
+	updateCSP(): void {
+		this.manifest.content_security_policy ??= {}
+		let currentCSP = this.manifest.content_security_policy.extension_pages
+		this.manifest.content_security_policy.extension_pages = getCSP(currentCSP)
 	}
 
-	async writeBuildFiles(manifest: chrome.runtime.ManifestV3): Promise<void> {
-		await this.writeManifestSW(manifest)
-	}
-
-	updateCSP(manifest: chrome.runtime.ManifestV3): chrome.runtime.ManifestV3 {
-		manifest.content_security_policy ??= {}
-
-		let currentCSP = manifest.content_security_policy.extension_pages
-		manifest.content_security_policy.extension_pages = getCSP(currentCSP)
-
-		return manifest
+	async writeBuildFiles(): Promise<void> {
+		await this.writeManifestSW(this.manifest)
 	}
 
 	private async writeManifestSW(manifest: chrome.runtime.ManifestV3) {
-		if (!manifest.background?.service_worker) return
+		if (!this.manifest.background?.service_worker) return
 
-		const fileName = manifest.background?.service_worker
+		const fileName = this.manifest.background?.service_worker
 		const serviceWorkerLoader = getSwLoader(`${this.hmrServer}/${fileName}`)
-
-		manifest.background.service_worker = serviceWorkerLoader.fileName
+		this.manifest.background.service_worker = serviceWorkerLoader.fileName
 
 		const outFile = `${this.outDir}/${serviceWorkerLoader.fileName}`
 		const outFileDir = path.dirname(outFile)
@@ -48,13 +32,11 @@ export default class DevBuilderV3 extends DevBuilder<chrome.runtime.ManifestV3> 
 		await writeFile(outFile, serviceWorkerLoader.source)
 	}
 
-	protected async writeOutputWas(
-		manifest: chrome.runtime.ManifestV3,
-		wasFilter: ReturnType<typeof createFilter>,
-	) {
-		if (!manifest.web_accessible_resources) return
+	protected async writeOutputWas(wasFilter: ReturnType<typeof createFilter>) {
+		let manifestWAS = this.manifest.web_accessible_resources
+		if (!manifestWAS) return
 
-		for (const [i, struct] of manifest.web_accessible_resources.entries()) {
+		for (const [i, struct] of manifestWAS.entries()) {
 			if (!struct || !struct.resources.length) continue
 
 			for (const [j, fileName] of struct.resources.entries()) {
@@ -66,7 +48,7 @@ export default class DevBuilderV3 extends DevBuilder<chrome.runtime.ManifestV3> 
 					`${this.hmrServer}/${fileName}`,
 				)
 
-				manifest.web_accessible_resources[i].resources[j] = loader.fileName
+				manifestWAS[i].resources[j] = loader.fileName
 
 				const outFile = `${this.outDir}/${loader.fileName}`
 				const outFileDir = path.dirname(outFile)

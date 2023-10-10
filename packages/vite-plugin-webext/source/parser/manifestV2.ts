@@ -9,7 +9,12 @@ type ManifestParseResult = Result<Manifest>
 
 export default class ManifestV2 extends ManifestParser<Manifest> {
 	protected createDevBuilder(): DevBuilder<Manifest> {
-		return new DevBuilderV2(this.viteConfig, this.options, this.devServer)
+		return new DevBuilderV2(
+			this.viteConfig,
+			this.options,
+			this.devServer,
+			this.inputManifest,
+		)
 	}
 
 	/** get all html files from manifest */

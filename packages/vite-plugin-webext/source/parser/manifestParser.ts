@@ -23,6 +23,7 @@ export default abstract class ManifestParser<
 		protected options: WebExtensionOptions,
 		protected viteConfig: Vite.ResolvedConfig,
 	) {
+		// use date as version
 		if (this.options.manifest.version === 'DATE') {
 			let now = new Date()
 			const version = [
@@ -32,7 +33,7 @@ export default abstract class ManifestParser<
 			].join('.')
 			this.options.manifest.version = version
 		}
-		this.inputManifest = this.options.manifest as Manifest
+		this.inputManifest = JSON.parse(JSON.stringify(this.options.manifest))
 		this.WasFilter = filterScripts(this.options.webAccessibleScripts)
 	}
 
@@ -55,8 +56,7 @@ export default abstract class ManifestParser<
 
 	async writeDevBuild(port: number): Promise<void> {
 		await this.createDevBuilder().writeBuild({
-			port,
-			manifest: this.inputManifest,
+			devServerPort: port,
 			htmlFiles: this.getHtmlFiles(this.inputManifest),
 		})
 	}
@@ -213,7 +213,7 @@ export default abstract class ManifestParser<
 		bundle: Rollup.OutputBundle,
 	): { scriptFileName: string; webAccessibleFiles: Set<string> } {
 		const chunkInfo = getScriptChunkInfo(bundle, file)
-
+		console.log({ chunkInfo, file })
 		// throw error if chunk not found
 		if (!chunkInfo) {
 			throw new Error(`Failed to find chunk info for ${file}`)

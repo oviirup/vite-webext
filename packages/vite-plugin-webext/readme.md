@@ -1,21 +1,20 @@
 # vite-plugin-webext
 
-[![version][npm_version]][npm_url]
+[![version][sh_npm_version]][npm_url]
+[![ci][sh_npm_status]](#)
 
 > A Vite plugin to generate cross-browser web extensions, available for Chrome, Edge, Firefox, Opera etc...
 
 With this plugin, you can build a browser extension compatible with all browsers with modern technologies like typescript, tailwind and react.
 
-This plugin is based on [samrum/vite-plugin-web-extension](https://github.com/samrum/vite-plugin-web-extension). Though the plugin is great, it is missing some key features, like support for Sass, and Tailwind.
-
 ## Features
 
-- supports manifest v3 & v2
-- es module-based extension
+- Supports manifest v3 & v2
+- ES-module-based extension
 - HTML and static assets handling
 - HMR support in shadow-dom
 - CSS compiling
-- support for sass, tailwind and more
+- Support for sass, tailwind and more
 
 ## Getting started
 
@@ -32,12 +31,12 @@ update the `vite.config.ts` like this
 
 import { defineConfig } from 'vite'
 import webExtension from 'vite-plugin-webext'
-import manifest_v3 from './manifest'
+import manifest from './manifest'
 
 export default return defineConfig({
   ...
   plugins: [
-    webExtension({ manifest: manifest_v3 }),
+    webExtension({ manifest: manifest }),
   ],
 })
 ```
@@ -58,13 +57,6 @@ The following requirements must be met by the browser:
 - Must support dynamic module imports made by web extension content scripts.
 - Must support `import.meta.url`
 
-A sample of supported browsers:
-
-|          | Manifest V2 | Manifest V3 |
-| -------- | ----------- | ----------- |
-| Chromium | 64          | 91          |
-| Firefox  | 89          | -           |
-
 The plugin will automatically default Vite's `build.target` config option to these minimum browser versions if not already defined by the user.
 
 For dev mode support in Manifest V3, the Chromium version must be at least 110.
@@ -83,4 +75,5 @@ This includes:
 <!-- footer links -->
 
 [npm_url]: https://www.npmjs.com/package/vite-plugin-webext
-[npm_version]: https://img.shields.io/npm/v/vite-plugin-webext
+[sh_npm_version]: https://img.shields.io/npm/v/vite-plugin-webext
+[sh_npm_status]: https://img.shields.io/github/actions/workflow/status/graygalaxy/vite-plugin-webext/publish-plugin.yml

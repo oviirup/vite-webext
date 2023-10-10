@@ -1,6 +1,6 @@
 {
 	"name": "vite-plugin-webext",
-	"version": "1.2.11",
+	"version": "1.2.12",
 	"description": "A vite plugin for generating cross browser platform, ES module based web extensions",
 	"main": "dist/index.cjs",
 	"module": "dist/index.mjs",
@@ -15,9 +15,9 @@
 	"private": false,
 	"scripts": {
 		"build": "tsc && rollup -c",
-		"postbuild": "npx tsx source/postbuild.ts",
 		"watch": "rollup -c -w",
-		"lint": "prettier --write ."
+		"format": "prettier --write .",
+		"clean": "rimraf -g client dist"
 	},
 	"devDependencies": {
 		"@rollup/plugin-typescript": "^11.1.0",
@@ -37,6 +37,7 @@
 		"etag": "^1.8.1",
 		"fs-extra": "^11.1.1",
 		"magic-string": "^0.30.0",
+		"rimraf": "^5.0.5",
 		"vite": "^4.3.5"
 	},
 	"keywords": [
