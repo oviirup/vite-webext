@@ -1,7 +1,6 @@
 import path from 'node:path'
-import MagicString from 'magic-string'
 import { createFilter } from 'vite'
-import { sanitise } from './files'
+import { sanitize } from './files'
 
 /** Updates vite config with necessary settings */
 export function updateConfig(
@@ -49,38 +48,11 @@ export function updateConfig(
 	return config
 }
 
-/** transforms self.location to import.meta.url */
-export function transformImports(code: string, config: Vite.ResolvedConfig) {
-	if (!code.includes('new URL') || !code.includes(`self.location`)) return null
-
-	let updatedCode: MagicString | null = null
-	// prettier-ignore
-	let regex = /\bnew\s+URL\s*\(\s*('[^']+'|"[^"]+"|`[^`]+`)\s*,\s*self\.location\s*\)/g
-
-	let match: RegExpExecArray | null
-	while ((match = regex.exec(code))) {
-		const { 0: exp, index } = match
-		if (!updatedCode) updatedCode = new MagicString(code)
-		let start = index
-		let end = index + exp.length
-		let replacer = exp.replace('self.location', 'import.meta.url')
-		updatedCode.overwrite(start, end, replacer)
-	}
-
-	if (!updatedCode) return null
-	return {
-		code: updatedCode.toString(),
-		map: config.build.sourcemap
-			? updatedCode.generateMap({ hires: true })
-			: null,
-	}
-}
-
 export function findChunk(
 	manifest: Vite.Manifest,
 	file: string,
 ): Vite.ManifestChunk | undefined {
-	return manifest[sanitise(file).path]
+	return manifest[sanitize(file).path]
 }
 
 export function filterScripts(

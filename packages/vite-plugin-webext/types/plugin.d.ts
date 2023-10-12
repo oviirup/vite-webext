@@ -16,6 +16,12 @@ export interface WebExtensionOptions {
 	 */
 	useDynamicUrl?: boolean
 
+	/**
+	 * Enable React HMR for all 'jsx' and 'tsx' modules
+	 * Default: true
+	 */
+	useReactHMR?: boolean
+
 	/** filter scripts for compiling */
 	webAccessibleScripts?: {
 		include?: FilterPattern | undefined

@@ -1,4 +1,4 @@
-import { sanitise } from './files'
+import { sanitize } from './files'
 
 export function appendInputScripts(
 	inputScripts: [string, string][],
@@ -36,7 +36,7 @@ export function getScriptChunkInfo(
 	bundle: Rollup.OutputBundle,
 	chunkId: string,
 ): Rollup.OutputChunk | undefined {
-	const file = sanitise(chunkId).path
+	const file = sanitize(chunkId).path
 
 	return Object.values(bundle).find((chunk) => {
 		if (chunk.type === 'asset') return false
@@ -49,7 +49,7 @@ export function getCssAssetInfo(
 	bundle: Rollup.OutputBundle,
 	assetFileName: string,
 ): Rollup.OutputAsset | undefined {
-	let fileName = sanitise(assetFileName).name + '.css'
+	let fileName = sanitize(assetFileName).name + '.css'
 
 	return Object.values(bundle).find((chunk) => {
 		if (chunk.type === 'chunk') return

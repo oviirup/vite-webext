@@ -2,12 +2,14 @@ import ManifestParserFactory from './parser'
 import type ManifestParser from './parser/manifestParser'
 import { appendInputScripts } from './utils/rollup'
 import { contentScriptStyleHandler } from './utils/server'
-import { getModule, transformImports, updateConfig } from './utils/vite'
+import TransformCode from './utils/transform'
+import { getModule, updateConfig } from './utils/vite'
 
 export default function webExtension(
 	pluginOptions: WebExtensionOptions,
 ): Vite.PluginOption {
 	// assign defaults
+	pluginOptions.useReactHMR ??= true
 	pluginOptions.useDynamicUrl ??= true
 	pluginOptions.useHashedFileName ??= true
 
@@ -68,7 +70,12 @@ export default function webExtension(
 
 		resolveId: (id) => (getModule(id) ? id : null),
 
-		transform: (code) => transformImports(code, userConfig),
+		transform: (code, id) => {
+			return new TransformCode(code, id)
+				.convertImports()
+				.enableReactHMR(Boolean(pluginOptions.useReactHMR))
+				.run(userConfig.build.sourcemap)
+		},
 
 		generateBundle: async function (_options, bundle) {
 			const { emitFiles } = await manifestParser.parseOutput(bundle)

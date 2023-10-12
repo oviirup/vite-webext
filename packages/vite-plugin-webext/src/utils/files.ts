@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { normalizePath } from 'vite'
 
-export function sanitise(...filePaths: string[]) {
+export function sanitize(...filePaths: string[]) {
 	let filePath = filePaths.join('/')
 	let nPath = normalizePath(path.normalize(filePath))
 	let { dir = '', name, ext } = path.parse(nPath)
@@ -29,12 +29,12 @@ export function getFileName(
 	noCheck: boolean = false,
 ) {
 	fileName = normalizePath(fileName)
-	const outputPath = sanitise(fileName).name
+	const outputPath = sanitize(fileName).name
 
 	// probable file path in root and public folder
 	const file = {
-		S: config?.root && sanitise(config.root, fileName).path,
-		P: config?.publicDir && sanitise(config.publicDir, fileName).path,
+		S: config?.root && sanitize(config.root, fileName).path,
+		P: config?.publicDir && sanitize(config.publicDir, fileName).path,
 	}
 	return {
 		inputFile: validatePath(file.S, noCheck),
