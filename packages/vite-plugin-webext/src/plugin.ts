@@ -17,6 +17,7 @@ export default function webExtension(
 		throw new Error('Missing manifest definition')
 	}
 
+	let mode: Vite.BuildMode = 'BUILD'
 	let userConfig: Vite.ResolvedConfig
 	let emitQueue: Rollup.EmittedFile[] = []
 	let manifestParser:
@@ -27,7 +28,10 @@ export default function webExtension(
 		name: 'webExtension',
 		enforce: 'post', // required to revert vite asset self.location transform to import.meta.url
 
-		config: (config) => {
+		config: (config, env) => {
+			if (env.command === 'serve') mode = 'DEV'
+			else if (config.build?.watch) mode = 'WATCH'
+
 			return updateConfig(config, pluginOptions)
 		},
 
@@ -73,8 +77,8 @@ export default function webExtension(
 		transform: (code, id) => {
 			return new TransformCode(code, id)
 				.convertImports()
-				.enableReactHMR(Boolean(pluginOptions.useReactHMR))
-				.run(userConfig.build.sourcemap)
+				.enableReactHMR(pluginOptions, mode)
+				.run(userConfig)
 		},
 
 		generateBundle: async function (_options, bundle) {

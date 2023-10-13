@@ -27,13 +27,12 @@ function transformReactHMR(code: string, file: string): MagicString | null {
 	let hasReactRefresh = code?.includes('RefreshRuntime from "/@react-refresh"')
 	if (!code || (!isJSX && !hasReactRefresh)) return null
 
-	let reactHmrCode = `
-  try { if (import.meta.hot) {
+	let reactHmrCode = `try {
     RefreshRuntime.injectIntoGlobalHook(window);
     window.$RefreshReg$ = () => {};
     window.$RefreshSig$ = () => (type) => type;
     window.__vite_plugin_react_preamble_installed__ = true;
-  }}catch{}`
+  } catch {}`
 
 	code = reactHmrCode + code
 	return new MagicString(code)
@@ -56,13 +55,15 @@ export default class TransformCode {
 		return this
 	}
 
-	enableReactHMR(hmr: boolean) {
-		this.updatedCode = transformReactHMR(this.code, this.file)
+	enableReactHMR(options: WebExtensionOptions, mode: Vite.BuildMode) {
+		if (mode === 'DEV' && options.useDynamicUrl)
+			this.updatedCode = transformReactHMR(this.code, this.file)
 		return this
 	}
 
-	run(sourceMap: boolean | 'inline' | 'hidden') {
+	run(userConfig: Vite.ResolvedConfig) {
 		if (!this.updatedCode) return null
+		let sourceMap = userConfig.build.sourcemap
 		return {
 			code: this.updatedCode.toString(),
 			map: sourceMap ? this.updatedCode.generateMap({ hires: true }) : null,
