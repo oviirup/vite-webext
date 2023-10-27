@@ -1,8 +1,8 @@
+import ManifestParser, { Result } from './manifestParser'
 import DevBuilder from '@/builder'
 import DevBuilderV2 from '@/builder/manifestV2'
 import { getFileName, isHTML } from '@/utils/files'
-import { OutputBundle } from 'rollup'
-import ManifestParser, { Result } from './manifestParser'
+import type * as Rollup from 'rollup'
 
 type Manifest = chrome.runtime.ManifestV2
 type ManifestParseResult = Result<Manifest>
@@ -67,7 +67,7 @@ export default class ManifestV2 extends ManifestParser<Manifest> {
 	/** parse content script for output */
 	protected async parseOutputCs(
 		result: ManifestParseResult,
-		bundle: OutputBundle,
+		bundle: Rollup.OutputBundle,
 	): Promise<ManifestParseResult> {
 		const waResources = new Set<string>(
 			result.manifest.web_accessible_resources ?? [],
@@ -100,7 +100,7 @@ export default class ManifestV2 extends ManifestParser<Manifest> {
 	/** parse output web-accessible-resource */
 	protected async parseOutputWas(
 		result: ManifestParseResult,
-		bundle: OutputBundle,
+		bundle: Rollup.OutputBundle,
 	): Promise<ManifestParseResult> {
 		if (!result.manifest.web_accessible_resources) return result
 

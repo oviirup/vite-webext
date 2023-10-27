@@ -1,4 +1,5 @@
 import { sanitize } from './files'
+import type * as Rollup from 'rollup'
 
 export function appendInputScripts(
 	inputScripts: [string, string][],

@@ -1,10 +1,12 @@
 import { ContentSecurityPolicy } from '@/lib/csp'
 import getEtag from 'etag'
+import type * as HTTP from 'node:http'
+import type * as Vite from 'vite'
 
 /** add hmr support to shadow dom */
 export function contentScriptStyleHandler(
 	req: Vite.Connect.IncomingMessage,
-	res: Vite.Connect.OutgoingMessage,
+	res: HTTP.ServerResponse,
 	next: Vite.Connect.NextFunction,
 ) {
 	const _originalEnd = res.end

@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { normalizePath } from 'vite'
+import type * as Vite from 'vite'
 
 export function sanitize(...filePaths: string[]) {
 	let filePath = filePaths.join('/')
@@ -59,6 +60,6 @@ export function hashFileName(file: string, format: string): string {
 	return filePath
 }
 
-export function getHash(text: string) {
-	return createHash('sha256').update(text).digest('hex').substring(0, 8)
+export function getHash(text: string, length = 8) {
+	return createHash('sha256').update(text).digest('hex').substring(0, length)
 }

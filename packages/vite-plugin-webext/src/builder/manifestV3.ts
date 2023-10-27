@@ -1,11 +1,11 @@
 import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import DevBuilder from './index'
 import { getFileName } from '@/utils/files'
 import { getScriptLoader, getSwLoader } from '@/utils/loader'
 import { getCSP } from '@/utils/server'
 import { ensureDir } from 'fs-extra'
 import { createFilter } from 'vite'
-import DevBuilder from './index'
 
 export default class DevBuilderV3 extends DevBuilder<chrome.runtime.ManifestV3> {
 	updateCSP(): void {

@@ -1,12 +1,12 @@
 import crypto from 'node:crypto'
 import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import DevBuilder from './index'
 import { getFileName } from '@/utils/files'
 import { getScriptLoader } from '@/utils/loader'
 import { getCSP } from '@/utils/server'
 import { ensureDir } from 'fs-extra'
 import { createFilter } from 'vite'
-import DevBuilder from '.'
 
 export default class DevBuilderV2 extends DevBuilder<chrome.runtime.ManifestV2> {
 	protected updateCSP(): void {
@@ -31,8 +31,7 @@ export default class DevBuilderV2 extends DevBuilder<chrome.runtime.ManifestV2> 
 			i,
 			resource,
 		] of this.manifest.web_accessible_resources.entries()) {
-			if (!resource) continue
-			if (!wasFilter(resource)) continue
+			if (!resource || !wasFilter(resource)) continue
 
 			const { outputFile } = getFileName(resource)
 			const loader = getScriptLoader(

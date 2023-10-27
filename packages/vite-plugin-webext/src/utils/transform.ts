@@ -1,4 +1,6 @@
 import MagicString, { SourceMap } from 'magic-string'
+import type { BuildMode, WebExtensionOptions } from '@/plugin.d'
+import type * as Vite from 'vite'
 
 function transformSelfImports(code: string): MagicString | null {
 	let hasUrlInit = code.includes('new URL')
@@ -55,7 +57,7 @@ export default class TransformCode {
 		return this
 	}
 
-	enableReactHMR(options: WebExtensionOptions, mode: Vite.BuildMode) {
+	enableReactHMR(options: WebExtensionOptions, mode: BuildMode) {
 		if (mode === 'DEV' && options.useDynamicUrl)
 			this.updatedCode = transformReactHMR(this.code, this.file)
 		return this

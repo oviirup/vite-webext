@@ -1,12 +1,13 @@
-import { ResolvedConfig } from 'vite'
 import ManifestParser from './manifestParser'
 import ManifestV2 from './manifestV2'
 import ManifestV3 from './manifestV3'
+import type { WebExtensionOptions } from '@/plugin.d'
+import type * as Vite from 'vite'
 
 export default class ManifestParserFactory {
 	static getParser(
 		options: WebExtensionOptions,
-		userConfig: ResolvedConfig,
+		userConfig: Vite.ResolvedConfig,
 	):
 		| ManifestParser<chrome.runtime.ManifestV2>
 		| ManifestParser<chrome.runtime.ManifestV3> {

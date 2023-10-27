@@ -1,6 +1,6 @@
 {
 	"name": "vite-plugin-webext",
-	"version": "1.2.15",
+	"version": "1.2.16",
 	"private": false,
 	"description": "A vite plugin for generating cross browser platform, ES module based web extensions",
 	"main": "dist/index.js",
@@ -14,26 +14,27 @@
 		"client/*"
 	],
 	"scripts": {
-		"build": "vite build",
-		"watch": "vite build -w",
+		"build": "tsup",
+		"watch": "tsup  -w",
 		"test": "vitest --run",
 		"clean": "rimraf -g client dist"
 	},
 	"dependencies": {
-		"@types/chrome": "^0.0.235",
-		"@types/etag": "^1.8.1",
 		"etag": "^1.8.1",
 		"fs-extra": "^11.1.1",
-		"magic-string": "^0.30.0",
-		"rimraf": "^5.0.5",
-		"vite": "^4.3.5"
+		"magic-string": "^0.30.5",
+		"vite": "^4.5.0"
 	},
 	"devDependencies": {
-		"@types/fs-extra": "^11.0.1",
-		"@types/node": "^20.1.0",
-		"rollup": "^3.21.5",
-		"typescript": "^5.0.4",
-		"vitest": "^0.34.6"
+		"@types/chrome": "^0.0.235",
+		"@types/etag": "^1.8.2",
+		"@types/fs-extra": "^11.0.3",
+		"@types/node": "^20",
+		"rimraf": "^5",
+		"rollup": "^3",
+		"tsup": "latest",
+		"typescript": "latest",
+		"vitest": "latest"
 	},
 	"peerDependencies": {
 		"vite": "^4.0.5"

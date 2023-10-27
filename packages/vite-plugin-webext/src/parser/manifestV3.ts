@@ -1,10 +1,10 @@
+import ManifestParser, { Result } from './manifestParser'
 import DevBuilder from '@/builder'
 import DevBuilderV3 from '@/builder/manifestV3'
 import { getFileName, isHTML } from '@/utils/files'
 import { getSwLoader } from '@/utils/loader'
 import { getScriptChunkInfo } from '@/utils/rollup'
-import { OutputBundle } from 'rollup'
-import ManifestParser, { Result } from './manifestParser'
+import type * as Rollup from 'rollup'
 
 export default class ManifestV3 extends ManifestParser<Manifest> {
 	protected createDevBuilder(): DevBuilder<Manifest> {
@@ -42,7 +42,7 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
 	/** gets available parser output methods */
 	protected getParseOutputMethods(): ((
 		result: ParseResult,
-		bundle: OutputBundle,
+		bundle: Rollup.OutputBundle,
 	) => Promise<ParseResult>)[] {
 		return [this.parseOutputSw]
 	}
@@ -82,7 +82,7 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
 	/** parse content script for output */
 	protected async parseOutputCs(
 		result: ParseResult,
-		bundle: OutputBundle,
+		bundle: Rollup.OutputBundle,
 	): Promise<ParseResult> {
 		const waResources = new Set<WAResources>(
 			result.manifest.web_accessible_resources ?? [],
@@ -131,7 +131,7 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
 	/** parse output web-accessible-resource */
 	protected async parseOutputWas(
 		result: ParseResult,
-		bundle: OutputBundle,
+		bundle: Rollup.OutputBundle,
 	): Promise<ParseResult> {
 		if (!result.manifest.web_accessible_resources) return result
 
@@ -158,7 +158,7 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
 	/** parse output background service-worker */
 	protected async parseOutputSw(
 		result: ParseResult,
-		bundle: OutputBundle,
+		bundle: Rollup.OutputBundle,
 	): Promise<ParseResult> {
 		const swFile = result.manifest.background?.service_worker
 		if (!swFile) return result

@@ -5,6 +5,7 @@
 	"quoteProps": "consistent",
 	"arrowParens": "always",
 	"plugins": ["prettier-plugin-imports"],
+	"importOrder": ["<BUILTIN_MODULES>", "<THIRD_PARTY_MODULES>", "<TYPES>"],
 	"useTabs": true,
 	"tabWidth": 2,
 	"trailingComma": "all",

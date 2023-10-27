@@ -1,5 +1,5 @@
 import { getHash } from '@/utils/files'
-import { OutputChunk } from 'rollup'
+import type * as Rollup from 'rollup'
 
 type FileLoader = {
 	fileName: string
@@ -30,14 +30,14 @@ export function getScriptLoader(
 	inputFile: string,
 	outputFile: string,
 ): FileLoader {
-	const hash = getHash(inputFile)
+	const hash = getHash(inputFile, 6)
 
 	const importPath = outputFile.startsWith('http')
 		? `'${outputFile}'`
 		: `(chrome??browser).runtime.getURL("${outputFile}")`
 
 	return {
-		fileName: `script-${hash}.js`,
+		fileName: `assets/js/_cs.${hash}.js`,
 		source: `(async()=>{await import(${importPath})})();`,
 	}
 }
@@ -46,7 +46,7 @@ export function getScriptLoader(
 export function getSwLoader(file: string): FileLoader {
 	const importPath = file.startsWith('http') ? `${file}` : `/${file}`
 	return {
-		fileName: `service-worker.js`,
+		fileName: `assets/js/_sw.js`,
 		source: `import "${importPath}";`,
 	}
 }
@@ -54,7 +54,7 @@ export function getSwLoader(file: string): FileLoader {
 /** loader for all content scripts */
 export function getCsLoader(
 	fileName: string,
-	chunk: OutputChunk,
+	chunk: Rollup.OutputChunk,
 ): FileLoaderPartial {
 	if (!chunk.imports.length && !chunk.dynamicImports.length) {
 		return { fileName: chunk.fileName }
@@ -66,7 +66,7 @@ export function getCsLoader(
 /** loader for web accessible scripts */
 export function getWasLoader(
 	fileName: string,
-	chunk: OutputChunk,
+	chunk: Rollup.OutputChunk,
 ): FileLoaderPartial {
 	if (!chunk.imports.length && !chunk.dynamicImports.length) {
 		return {

@@ -1,4 +1,7 @@
-import type { ChunkMetadata, FilterPattern } from 'vite'
+import type { FilterPattern } from 'vite'
+
+export type BuildMode = 'BUILD' | 'DEV' | 'WATCH'
+
 
 export interface WebExtensionOptions {
 	/** The manifest to generate extension */

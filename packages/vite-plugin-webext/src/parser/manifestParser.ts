@@ -4,6 +4,9 @@ import { getCsLoader, getHtmlLoader, getWasLoader } from '@/utils/loader'
 import { getCssAssetInfo, getScriptChunkInfo } from '@/utils/rollup'
 import { filterScripts, setModule } from '@/utils/vite'
 import { createFilter } from 'vite'
+import type { WebExtensionOptions } from '@/plugin.d'
+import type * as Rollup from 'rollup'
+import type * as Vite from 'vite'
 
 export interface Result<Manifest extends chrome.runtime.Manifest> {
 	inputScripts: [string, string][]

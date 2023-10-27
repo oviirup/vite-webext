@@ -5,6 +5,8 @@ import { getScriptLoader } from '@/utils/loader'
 import { filterScripts, getModule } from '@/utils/vite'
 import { copy, emptyDir, ensureDir, pathExists } from 'fs-extra'
 import { createFilter, normalizePath } from 'vite'
+import type { WebExtensionOptions } from '@/plugin.d'
+import type * as Vite from 'vite'
 
 export default abstract class DevBuilder<
 	Manifest extends chrome.runtime.Manifest,

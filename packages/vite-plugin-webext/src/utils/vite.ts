@@ -1,6 +1,9 @@
 import path from 'node:path'
-import { createFilter } from 'vite'
 import { sanitize } from './files'
+import { createFilter } from 'vite'
+import type { WebExtensionOptions } from '@/plugin.d'
+import type * as Rollup from 'rollup'
+import type * as Vite from 'vite'
 
 /** Updates vite config with necessary settings */
 export function updateConfig(
@@ -38,11 +41,23 @@ export function updateConfig(
 	config.server.hmr.protocol = 'ws'
 	config.server.hmr.host = 'localhost'
 
+	const outputConfig = config.build.rollupOptions.output
+
+	function rename(chunk: Rollup.PreRenderedAsset): string
+	function rename(chunk: Rollup.PreRenderedChunk): string
+	function rename(chunk: Rollup.PreRenderedChunk | Rollup.PreRenderedAsset) {
+		const { name, type } = chunk
+		if (!name) return
+		let fileName = path.parse(name).name
+		return type === 'chunk'
+			? `assets/js/${fileName}.[hash:6].js`
+			: `assets/[ext]/${fileName}.[hash:6].[ext]`
+	}
 	// prettier-ignore
-	if (useHashedFileName && !Array.isArray(config.build.rollupOptions.output)) {
-		config.build.rollupOptions.output.assetFileNames ??= 'assets/[ext]/[hash].[ext]'
-		config.build.rollupOptions.output.chunkFileNames ??= 'assets/js/[hash].js'
-		config.build.rollupOptions.output.entryFileNames ??= 'assets/js/[hash].js'
+	if (useHashedFileName && !Array.isArray(outputConfig)) {
+		outputConfig.assetFileNames ??=rename
+		outputConfig.chunkFileNames ??=rename
+		outputConfig.entryFileNames ??=rename
 	}
 
 	return config

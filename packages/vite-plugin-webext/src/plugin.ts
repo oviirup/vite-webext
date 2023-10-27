@@ -1,9 +1,12 @@
 import ManifestParserFactory from './parser'
-import type ManifestParser from './parser/manifestParser'
 import { appendInputScripts } from './utils/rollup'
 import { contentScriptStyleHandler } from './utils/server'
 import TransformCode from './utils/transform'
 import { getModule, updateConfig } from './utils/vite'
+import type ManifestParser from './parser/manifestParser'
+import type { BuildMode, WebExtensionOptions } from '@/plugin.d'
+import type * as Rollup from 'rollup'
+import type * as Vite from 'vite'
 
 export default function webExtension(
 	pluginOptions: WebExtensionOptions,
@@ -17,7 +20,7 @@ export default function webExtension(
 		throw new Error('Missing manifest definition')
 	}
 
-	let mode: Vite.BuildMode = 'BUILD'
+	let mode: BuildMode = 'BUILD'
 	let userConfig: Vite.ResolvedConfig
 	let emitQueue: Rollup.EmittedFile[] = []
 	let manifestParser:
@@ -31,7 +34,6 @@ export default function webExtension(
 		config: (config, env) => {
 			if (env.command === 'serve') mode = 'DEV'
 			else if (config.build?.watch) mode = 'WATCH'
-
 			return updateConfig(config, pluginOptions)
 		},
 
@@ -41,7 +43,6 @@ export default function webExtension(
 
 		configureServer: (server) => {
 			server.middlewares.use(contentScriptStyleHandler)
-
 			server.httpServer!.once('listening', () => {
 				manifestParser.setDevServer(server)
 				manifestParser.writeDevBuild(server.config.server.port!)
@@ -53,12 +54,9 @@ export default function webExtension(
 				pluginOptions,
 				userConfig,
 			)
-
 			const { inputScripts, emitFiles } = await manifestParser.parseInput()
 			options.input = appendInputScripts(inputScripts, options.input)
-
 			emitQueue = emitQueue.concat(emitFiles)
-
 			return options
 		},
 
@@ -81,7 +79,7 @@ export default function webExtension(
 				.run(userConfig)
 		},
 
-		generateBundle: async function (_options, bundle) {
+		generateBundle: async function (_, bundle) {
 			const { emitFiles } = await manifestParser.parseOutput(bundle)
 			emitFiles.forEach(this.emitFile)
 		},
