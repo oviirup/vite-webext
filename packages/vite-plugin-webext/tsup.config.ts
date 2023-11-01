@@ -1,5 +1,5 @@
 import { copyFileSync } from 'node:fs'
-import { defineConfig, Format, Options } from 'tsup'
+import { defineConfig, Options } from 'tsup'
 
 const commons: Options = {
 	minify: true,
@@ -8,24 +8,24 @@ const commons: Options = {
 	external: ['vite', 'rollup', '/@vite/client'],
 }
 
-const commonConfig = (
-	entry: string,
-	outDir: string,
-	format: Format[],
-): Options => ({
-	minify: true,
-	clean: true,
-	skipNodeModulesBundle: true,
-	external: ['vite', 'rollup', '/@vite/client'],
-	entry: { index: `src/${entry}.ts` },
-	format,
-	outDir,
-	onSuccess: async () => {
-		copyFileSync(`src/${entry}.d.ts`, `${outDir}/index.d.ts`)
-	},
-})
-
 export default defineConfig([
-	commonConfig('plugin', 'dist', ['cjs', 'esm']),
-	commonConfig('client', 'client', ['esm']),
+	{
+		...commons,
+		entry: { index: './src/plugin.ts' },
+		format: ['esm', 'cjs'],
+		outDir: 'dist',
+		onSuccess: async () => {
+			copyFileSync('./src/plugin.d.ts', './dist/index.d.ts')
+		},
+	},
+	{
+		...commons,
+		entry: { index: './src/client.ts' },
+		format: ['esm'],
+		outDir: 'client',
+		onSuccess: async () => {
+			copyFileSync('./src/client.d.ts', './client/index.d.ts')
+			copyFileSync('./src/lib/react-hmr.js', './client/react-hmr.js')
+		},
+	},
 ])

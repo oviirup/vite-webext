@@ -12,3 +12,5 @@ declare module 'vite-plugin-webext/client' {
 		root: HTMLDivElement
 	}>
 }
+
+declare module 'vite-plugin-webext/client/react-hmr' {}

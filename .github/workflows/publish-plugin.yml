@@ -2,11 +2,15 @@ name: Publish Plugin
 
 on:
   push:
-    branches: ['main']
+    branches: [main]
     paths: ['packages/vite-plugin-webext/**']
+  pull_request_target:
+    branches: [master]
+    types: [closed]
 
 jobs:
   publish:
+    if: ${{ github.event_name=='push' || github.event.pull_request.merged==true }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -30,5 +34,5 @@ jobs:
         working-directory: ./packages/vite-plugin-webext
         run: npm publish --access public --no-git-checks
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
           NPM_CONFIG_PROVENANCE: true

@@ -19,11 +19,11 @@ export default class DevBuilderV3 extends DevBuilder<chrome.runtime.ManifestV3> 
 	}
 
 	private async writeManifestSW(manifest: chrome.runtime.ManifestV3) {
-		if (!this.manifest.background?.service_worker) return
+		if (!manifest.background?.service_worker) return
 
-		const fileName = this.manifest.background?.service_worker
+		const fileName = manifest.background?.service_worker
 		const serviceWorkerLoader = getSwLoader(`${this.hmrServer}/${fileName}`)
-		this.manifest.background.service_worker = serviceWorkerLoader.fileName
+		manifest.background.service_worker = serviceWorkerLoader.fileName
 
 		const outFile = `${this.outDir}/${serviceWorkerLoader.fileName}`
 		const outFileDir = path.dirname(outFile)
