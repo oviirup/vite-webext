@@ -1,12 +1,12 @@
-import { copyFileSync } from 'node:fs'
-import { defineConfig, Options } from 'tsup'
+import { copyFileSync } from 'node:fs';
+import { defineConfig, Options } from 'tsup';
 
 const commons: Options = {
 	minify: true,
 	clean: true,
 	skipNodeModulesBundle: true,
 	external: ['vite', 'rollup', '/@vite/client'],
-}
+};
 
 export default defineConfig([
 	{
@@ -15,7 +15,7 @@ export default defineConfig([
 		format: ['esm', 'cjs'],
 		outDir: 'dist',
 		onSuccess: async () => {
-			copyFileSync('./src/plugin.d.ts', './dist/index.d.ts')
+			copyFileSync('./src/plugin.d.ts', './dist/index.d.ts');
 		},
 	},
 	{
@@ -24,8 +24,8 @@ export default defineConfig([
 		format: ['esm'],
 		outDir: 'client',
 		onSuccess: async () => {
-			copyFileSync('./src/client.d.ts', './client/index.d.ts')
-			copyFileSync('./src/lib/react-hmr.js', './client/react-hmr.js')
+			copyFileSync('./src/client.d.ts', './client/index.d.ts');
+			copyFileSync('./src/lib/react-hmr.js', './client/react-hmr.js');
 		},
 	},
-])
+]);
