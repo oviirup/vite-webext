@@ -1,0 +1,15 @@
+# GitIgnore https://git-scm.com/docs/gitignore
+
+# repository
+node_modules
+build
+dist
+.extension
+
+# local env files
+.env*
+!.env.example
+
+# log files
+*-debug.log*
+*-error.log*

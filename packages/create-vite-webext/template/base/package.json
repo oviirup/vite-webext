@@ -1,0 +1,22 @@
+{
+  "name": "vite-web-extension",
+  "displayName": "Vite Web Extension",
+  "version": "1.0.0",
+  "description": "Web extension created using vite-plugin-webext",
+  "scripts": {
+    "build": "vite build",
+    "watch": "vite build -w",
+    "dev": "vite"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "webextension-polyfill": "^0.10.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "latest",
+    "@types/node": "latest",
+    "@types/webextension-polyfill": "latest",
+    "vite": "latest",
+    "vite-plugin-webext": "latest"
+  }
+}

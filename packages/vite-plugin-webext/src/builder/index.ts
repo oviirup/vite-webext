@@ -42,7 +42,7 @@ export default abstract class DevBuilder<
 		this.hmrServer = this.getHmrServer(devServerPort);
 		this.hmrViteClient = `${this.hmrServer}/@vite/client`;
 
-		// copies the content of public ditrectory
+		// copies the content of public directory
 		await emptyDir(this.outDir);
 		const publicDir = path.resolve(
 			process.cwd(),
