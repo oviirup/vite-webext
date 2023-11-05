@@ -3,10 +3,11 @@ import path from 'node:path';
 import { blue, green, red } from 'picocolors';
 
 /**
- * checks if the folder is empty or have non-conflicting files
- * @param root path of the folder
+ * The function checks if a folder is empty or contains conflicting files.
+ * @param {string} root - working directory
+ * @returns {boolean} a boolean value
  */
-export function isFolderEmpty(root: string) {
+export function isFolderEmpty(root: string): boolean {
 	if (!fs.existsSync(root)) return true;
 	const folderName = path.basename(root);
 	//

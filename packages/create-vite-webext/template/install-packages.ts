@@ -3,6 +3,13 @@ import { isOnline } from '@/utils/is-online';
 import spawn from 'cross-spawn';
 import { yellow } from 'picocolors';
 
+/**
+ * Installs packages using a package manager, with an option to use
+ * the local cache if offline, and returns a promise that resolves
+ * once the installation is finished.
+ * @param {PackageManager} packman - preferred package manager
+ * @returns A Promise is being returned.
+ */
 export function installPackages(packman: PackageManager) {
 	let args: string[] = ['install'];
 

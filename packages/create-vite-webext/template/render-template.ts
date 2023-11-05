@@ -44,17 +44,24 @@ export async function renderTemplate({
 		process.exit(1);
 	}
 
+	/**
+	 * Merges two package.json files, updating the name and displayName properties.
+	 * @param {string} name - filename.
+	 * @param {string} src - source file path.
+	 * @param {string} dest - destination file path
+	 * @returns a stringified version of the merged package.json file.
+	 */
 	const mergePackageJson = async (name: string, src: string, dest: string) => {
-		if (name === 'package.json' && fs.existsSync(dest)) {
-			const existing = fs.readFileSync(dest);
-			const upcoming = fs.readFileSync(src);
-			try {
-				// Try to merge the two package json and update name fields
-				const pkgJson = JSON.parse(mergePackages(existing, upcoming));
-				pkgJson.name &&= appName;
-				pkgJson.displayName &&= toTitleCase(appName);
-				return JSON.stringify(pkgJson, null, 2);
-			} catch {}
+		if (name === 'package.json') {
+			let pkgData = fs.readFileSync(src, 'utf-8');
+			if (fs.existsSync(dest)) {
+				let existing = fs.readFileSync(dest, 'utf-8');
+				pkgData = mergePackages(pkgData, existing);
+			}
+			let pkgJson = JSON.parse(pkgData);
+			pkgJson.name &&= appName;
+			pkgJson.displayName &&= toTitleCase(appName);
+			return JSON.stringify(pkgJson, null, 2);
 		}
 	};
 
@@ -79,6 +86,11 @@ export async function renderTemplate({
 	installPackages(packman);
 }
 
+/**
+ * Converts a snake-case string to title case string.
+ * @param {string} text - text to convert
+ * @returns the input text with each word capitalized.
+ */
 function toTitleCase(text: string) {
 	let regex = /(?:^-*|-+)(.)/g;
 	text = text.replace(regex, (_, e: string) => ` ${e.toUpperCase()}`);

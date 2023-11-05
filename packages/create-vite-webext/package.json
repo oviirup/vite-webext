@@ -3,15 +3,19 @@
 	"version": "0.0.0",
 	"private": false,
 	"description": "Simple way to bootstrap your web-extension project with vite",
-	"repository": "github:graygalaxy/vite-webext",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/graygalaxy/vite-webext",
+		"directory": "packages/create-vite-webext"
+	},
 	"license": "MIT",
 	"author": "Avirup Ghosh (https://github.com/graygalaxy)",
 	"bin": {
 		"create-vite-webext": "dist/index.js"
 	},
 	"files": [
-		"dist/*",
-		"templates/*"
+		"dist",
+		"templates"
 	],
 	"scripts": {
 		"start": "tsx index.ts",

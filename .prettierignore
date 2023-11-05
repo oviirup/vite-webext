@@ -3,7 +3,9 @@ dist
 client
 .turbo
 *.d.ts
-/template/**/*.*
+
+**/template/base/
+**/template/framework/
 
 package-lock.json
 pnpm-*.yaml
