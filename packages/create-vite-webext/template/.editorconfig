@@ -1,0 +1,5 @@
+# EditorConfig https://EditorConfig.org
+
+[{base/**, framework/**}]
+indent_style = space
+indent_size = 2

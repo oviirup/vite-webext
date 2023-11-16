@@ -10,7 +10,6 @@
 		"format": "prettier --write .",
 		"watch": "turbo run watch"
 	},
-	"dependencies": {},
 	"devDependencies": {
 		"prettier": "latest",
 		"prettier-plugin-imports": "latest",

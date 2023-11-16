@@ -4,6 +4,9 @@ client
 .turbo
 *.d.ts
 
+**/template/base/
+**/template/framework/
+
 package-lock.json
 pnpm-*.yaml
 yarn.lock

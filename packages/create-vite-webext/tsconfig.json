@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"noEmit": true,
+		"paths": { "@/*": ["./*"] },
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"target": "esnext"
+	},
+	"include": ["**/*.ts", "template/*.ts"],
+	"exclude": ["template/base", "template/framework", "node_modules"]
+}

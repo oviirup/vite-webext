@@ -1,17 +1,21 @@
 {
 	"name": "vite-plugin-webext",
-	"version": "1.2.17",
+	"version": "1.2.18",
 	"private": false,
 	"description": "A vite plugin for generating cross browser platform, ES module based web extensions",
-	"main": "dist/index.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/graygalaxy/vite-webext",
+		"directory": "packages/vite-plugin-webext"
+	},
+	"license": "MIT",
+	"author": "Avirup Ghosh (https://github.com/graygalaxy)",
+	"main": "dist/index.cjs",
 	"module": "dist/index.mjs",
 	"types": "dist/index.d.ts",
-	"author": "Avirup Ghosh (https://github.com/graygalaxy)",
-	"license": "MIT",
-	"repository": "github:graygalaxy/vite-webext",
 	"files": [
-		"dist/*",
-		"client/*"
+		"dist",
+		"client"
 	],
 	"scripts": {
 		"build": "tsup",
@@ -20,24 +24,37 @@
 		"clean": "rimraf -g client dist"
 	},
 	"dependencies": {
-		"etag": "^1.8.1",
-		"fs-extra": "^11.1.1",
-		"magic-string": "^0.30.5",
+		"etag": "1",
+		"fs-extra": "11",
+		"magic-string": "^0.30",
 		"vite": "^4.5.0"
 	},
 	"devDependencies": {
 		"@types/chrome": "latest",
-		"@types/etag": "^1",
-		"@types/fs-extra": "^11.0.3",
-		"@types/node": "^20",
-		"rimraf": "^5",
-		"rollup": "^3",
+		"@types/etag": "1",
+		"@types/fs-extra": "11",
+		"@types/node": "20",
+		"rimraf": "5",
+		"rollup": "3",
 		"tsup": "latest",
 		"typescript": "latest",
+		"vite-tsconfig-paths": "^4.2.1",
 		"vitest": "latest"
 	},
 	"peerDependencies": {
 		"vite": "^4.0.5"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.cjs"
+		},
+		"./client": {
+			"types": "./client/index.d.ts",
+			"import": "./client/index.mjs",
+			"require": "./client/index.mjs"
+		}
 	},
 	"keywords": [
 		"vite-plugin",

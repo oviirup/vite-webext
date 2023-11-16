@@ -57,13 +57,13 @@ The following requirements must be met by the browser:
 - Must support dynamic module imports made by web extension content scripts.
 - Must support `import.meta.url`
 
-The plugin will automatically default Vite's `build.target` config option to these minimum browser versions if not already defined by the user.
+The plugin will automatically default to Vite's `build.target` config option to these minimum browser versions if not already defined by the user.
 
 For dev mode support in Manifest V3, the Chromium version must be at least 110.
 
 ## How it works
 
-The plugin will take the provided manifest, generate rollup input scripts for supported manifest properties, and then output an ES module based web extension.
+The plugin will take the provided manifest, generate rollup input scripts for supported manifest properties, and then output an ES module-based web extension.
 
 This includes:
 

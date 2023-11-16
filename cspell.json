@@ -1,0 +1,22 @@
+{
+	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+	"words": [
+		"Avirup",
+		"Ghosh",
+		"vite",
+		"webext",
+		"graygalaxy",
+		"tsup",
+		"newtab",
+		"picocolors"
+	],
+	"ignorePaths": [
+		"node_modules",
+		"package-lock.json",
+		"pnpm-lock.yaml",
+		"yarn.lock",
+		"**/dist/**/*",
+		"**/template/base/**/*",
+		"**/template/framework/**/*"
+	]
+}
