@@ -1,47 +1,47 @@
 {
-	"name": "create-vite-webext",
-	"version": "0.0.0",
-	"private": false,
-	"description": "Simple way to bootstrap your web-extension project with vite",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/graygalaxy/vite-webext",
-		"directory": "packages/create-vite-webext"
-	},
-	"license": "MIT",
-	"author": "Avirup Ghosh (https://github.com/graygalaxy)",
-	"bin": {
-		"create-vite-webext": "dist/index.js"
-	},
-	"files": [
-		"dist",
-		"templates"
-	],
-	"scripts": {
-		"start": "tsx index.ts",
-		"build": "tsup-node index.ts"
-	},
-	"devDependencies": {
-		"@types/chrome": "latest",
-		"@types/cross-spawn": "6",
-		"@types/node": "20",
-		"@types/prompts": "2.4",
-		"@types/validate-npm-package-name": "^4.0.1",
-		"command-exists": "1.2",
-		"commander": "11.1",
-		"cross-spawn": "7",
-		"fast-glob": "3",
-		"merge-packages": "^0.1.6",
-		"picocolors": "^1.0.0",
-		"prompts": "2.4",
-		"rimraf": "latest",
-		"tsup": "latest",
-		"tsx": "latest",
-		"typescript": "latest",
-		"validate-npm-package-name": "^5.0.0"
-	},
-	"tsup": {
-		"minify": true,
-		"clean": true
-	}
+  "name": "create-vite-webext",
+  "version": "0.0.0",
+  "private": false,
+  "description": "Simple way to bootstrap your web-extension project with vite",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/graygalaxy/vite-webext",
+    "directory": "packages/create-vite-webext"
+  },
+  "license": "MIT",
+  "author": "Avirup Ghosh (https://github.com/graygalaxy)",
+  "bin": {
+    "create-vite-webext": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "start": "tsx index.ts",
+    "build": "tsup-node index.ts"
+  },
+  "devDependencies": {
+    "@types/chrome": "latest",
+    "@types/cross-spawn": "6",
+    "@types/node": "20",
+    "@types/prompts": "2.4",
+    "@types/validate-npm-package-name": "^4.0.1",
+    "command-exists": "1.2",
+    "commander": "11.1",
+    "cross-spawn": "7",
+    "fast-glob": "3",
+    "merge-packages": "^0.1.6",
+    "picocolors": "^1.0.0",
+    "prompts": "2.4",
+    "rimraf": "latest",
+    "tsup": "latest",
+    "tsx": "latest",
+    "typescript": "latest",
+    "validate-npm-package-name": "^5.0.0"
+  },
+  "tsup": {
+    "minify": true,
+    "clean": true
+  }
 }

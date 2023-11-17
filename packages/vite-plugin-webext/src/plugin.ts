@@ -9,79 +9,79 @@ import type * as Rollup from 'rollup';
 import type * as Vite from 'vite';
 
 export default function webExtension(
-	pluginOptions: WebExtensionOptions,
+  pluginOptions: WebExtensionOptions,
 ): Vite.PluginOption {
-	// assign defaults
-	pluginOptions.useReactHMR ??= true;
-	pluginOptions.useDynamicUrl ??= true;
-	pluginOptions.useHashedFileName ??= true;
+  // assign defaults
+  pluginOptions.useReactHMR ??= true;
+  pluginOptions.useDynamicUrl ??= true;
+  pluginOptions.useHashedFileName ??= true;
 
-	if (!pluginOptions.manifest) {
-		throw new Error('Missing manifest definition');
-	}
+  if (!pluginOptions.manifest) {
+    throw new Error('Missing manifest definition');
+  }
 
-	let mode: BuildMode = 'BUILD';
-	let userConfig: Vite.ResolvedConfig;
-	let emitQueue: Rollup.EmittedFile[] = [];
-	let manifestParser:
-		| ManifestParser<chrome.runtime.ManifestV2>
-		| ManifestParser<chrome.runtime.ManifestV3>;
+  let mode: BuildMode = 'BUILD';
+  let userConfig: Vite.ResolvedConfig;
+  let emitQueue: Rollup.EmittedFile[] = [];
+  let manifestParser:
+    | ManifestParser<chrome.runtime.ManifestV2>
+    | ManifestParser<chrome.runtime.ManifestV3>;
 
-	return {
-		name: 'webExtension',
-		enforce: 'post', // required to revert vite asset self.location transform to import.meta.url
+  return {
+    name: 'webExtension',
+    enforce: 'post', // required to revert vite asset self.location transform to import.meta.url
 
-		config: (config, env) => {
-			if (env.command === 'serve') mode = 'DEV';
-			else if (config.build?.watch) mode = 'WATCH';
-			return updateConfig(config, pluginOptions);
-		},
+    config: (config, env) => {
+      if (env.command === 'serve') mode = 'DEV';
+      else if (config.build?.watch) mode = 'WATCH';
+      return updateConfig(config, pluginOptions);
+    },
 
-		configResolved: (config) => {
-			userConfig = config;
-		},
+    configResolved: (config) => {
+      userConfig = config;
+    },
 
-		configureServer: (server) => {
-			server.middlewares.use(contentScriptStyleHandler);
-			server.httpServer!.once('listening', () => {
-				manifestParser.setDevServer(server);
-				manifestParser.writeDevBuild(server.config.server.port!);
-			});
-		},
+    configureServer: (server) => {
+      server.middlewares.use(contentScriptStyleHandler);
+      server.httpServer!.once('listening', () => {
+        manifestParser.setDevServer(server);
+        manifestParser.writeDevBuild(server.config.server.port!);
+      });
+    },
 
-		async options(options) {
-			manifestParser = ManifestParserFactory.getParser(
-				pluginOptions,
-				userConfig,
-			);
-			const { inputScripts, emitFiles } = await manifestParser.parseInput();
-			options.input = appendInputScripts(inputScripts, options.input);
-			emitQueue = emitQueue.concat(emitFiles);
-			return options;
-		},
+    async options(options) {
+      manifestParser = ManifestParserFactory.getParser(
+        pluginOptions,
+        userConfig,
+      );
+      const { inputScripts, emitFiles } = await manifestParser.parseInput();
+      options.input = appendInputScripts(inputScripts, options.input);
+      emitQueue = emitQueue.concat(emitFiles);
+      return options;
+    },
 
-		buildStart: function () {
-			emitQueue.forEach((file) => {
-				this.emitFile(file);
-				if (file.fileName) this.addWatchFile(file.fileName);
-			});
-			emitQueue = [];
-		},
+    buildStart: function () {
+      emitQueue.forEach((file) => {
+        this.emitFile(file);
+        if (file.fileName) this.addWatchFile(file.fileName);
+      });
+      emitQueue = [];
+    },
 
-		load: getModule,
+    load: getModule,
 
-		resolveId: (id) => (getModule(id) ? id : null),
+    resolveId: (id) => (getModule(id) ? id : null),
 
-		transform: (code, id) => {
-			return new TransformCode(code, id)
-				.convertImports()
-				.enableReactHMR(pluginOptions, mode)
-				.run(userConfig);
-		},
+    transform: (code, id) => {
+      return new TransformCode(code, id)
+        .convertImports()
+        .enableReactHMR(pluginOptions, mode)
+        .run(userConfig);
+    },
 
-		generateBundle: async function (_, bundle) {
-			const { emitFiles } = await manifestParser.parseOutput(bundle);
-			emitFiles.forEach(this.emitFile);
-		},
-	};
+    generateBundle: async function (_, bundle) {
+      const { emitFiles } = await manifestParser.parseOutput(bundle);
+      emitFiles.forEach(this.emitFile);
+    },
+  };
 }

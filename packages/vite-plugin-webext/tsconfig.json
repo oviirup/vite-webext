@@ -1,17 +1,17 @@
 {
-	"compilerOptions": {
-		"baseUrl": ".",
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"module": "esnext",
-		"moduleResolution": "bundler",
-		"noEmit": true,
-		"paths": { "@/*": ["src/*"] },
-		"resolveJsonModule": true,
-		"skipLibCheck": true,
-		"strict": true,
-		"target": "esnext"
-	},
-	"include": ["**/*.ts"],
-	"exclude": ["dist", "node_modules"]
+  "compilerOptions": {
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "paths": { "@/*": ["src/*"] },
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "esnext"
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["dist", "node_modules"]
 }
