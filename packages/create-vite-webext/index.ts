@@ -3,6 +3,7 @@ import { name as pkgName, version as pkgVersion } from './package.json';
 import { getPackman } from './utils/get-packman';
 import { getProjectInfo } from '@/prompts/get-project-info';
 import { getTemplate } from '@/prompts/get-template';
+import { getUseTailwind } from '@/prompts/get-use-tailwind';
 import { getUseTypescript } from '@/prompts/get-use-typescript';
 import { renderTemplate } from '@/template/render-template';
 import { Command } from 'commander';
@@ -31,6 +32,10 @@ const program = new Command(pkgName)
     'Bootstrap your project with pre-templated frameworks',
   )
   .option(
+    '--tailwind',
+    'Create the project with tailwindcss, postcss and sass integration',
+  )
+  .option(
     '-p, --packman <package-manager>',
     'Explicitly tell the CLI to bootstrap the application using npm, pnpm, or yarn',
   )
@@ -43,14 +48,18 @@ async function initialize() {
   await getProjectInfo(program, opts);
   await getUseTypescript(opts);
   await getTemplate(opts);
+  await getUseTailwind(opts);
 
-  const appName = opts.project.name;
-  const appRoot = opts.project.path;
-  const template = opts.template!;
-  const packman = getPackman(opts.packman);
-  const useTS = Boolean(opts.typescript);
+  const templateConfig = {
+    appName: opts.project.name,
+    appRoot: opts.project.path,
+    template: opts.template!,
+    packman: getPackman(opts.packman),
+    useTS: Boolean(opts.typescript),
+    useTailwind: Boolean(opts.tailwind),
+  };
 
-  await renderTemplate({ appName, appRoot, template, packman, useTS });
+  await renderTemplate(templateConfig);
 }
 
 initialize()

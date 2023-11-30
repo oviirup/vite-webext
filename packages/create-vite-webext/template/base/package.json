@@ -6,7 +6,8 @@
   "scripts": {
     "build": "vite build",
     "watch": "vite build -w",
-    "dev": "vite"
+    "dev": "vite",
+    "format": "prettier --write ."
   },
   "license": "MIT",
   "dependencies": {
@@ -16,6 +17,7 @@
     "@types/chrome": "latest",
     "@types/node": "latest",
     "@types/webextension-polyfill": "latest",
+    "prettier": "latest",
     "vite": "latest",
     "vite-plugin-webext": "latest"
   }

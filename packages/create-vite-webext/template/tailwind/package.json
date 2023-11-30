@@ -1,0 +1,14 @@
+{
+  "devDependencies": {
+    "autoprefixer": "latest",
+    "postcss": "latest",
+    "sass": "latest",
+    "tailwindcss": "latest"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {},
+      "tailwindcss": {}
+    }
+  }
+}

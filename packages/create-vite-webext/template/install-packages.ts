@@ -1,4 +1,3 @@
-import { getPackman } from '@/utils/get-packman';
 import { isOnline } from '@/utils/is-online';
 import spawn from 'cross-spawn';
 import { yellow } from 'picocolors';
@@ -10,7 +9,7 @@ import { yellow } from 'picocolors';
  * @param {PackageManager} packman - preferred package manager
  * @returns A Promise is being returned.
  */
-export function installPackages(packman: PackageManager) {
+export async function installPackages(packman: PackageManager) {
   let args: string[] = ['install'];
 
   if (!isOnline()) {
@@ -18,17 +17,23 @@ export function installPackages(packman: PackageManager) {
     args.push('--offline');
   }
 
-  /** Return a Promise that resolves once the installation is finished */
-  return new Promise((resolve, reject) => {
-    const child = spawn(packman, args, {
-      stdio: 'inherit',
-      env: { ...process.env, ADBLOCK: '1', NODE_ENV: 'development' },
-    });
-    child.on('close', (code) => {
-      if (code !== 0) {
-        return reject({ command: `${packman} ${args.join(' ')}` });
-      }
-      resolve(true);
+  const env = { ...process.env, ADBLOCK: '1', NODE_ENV: 'development' };
+
+  // install packages with current package manager
+  let result: unknown;
+  result = await new Promise((resolve, reject) => {
+    spawn(packman, args, { stdio: 'inherit', env }).on('close', (code) => {
+      if (code !== 0) reject({ error: `${packman} ${args.join(' ')}` });
+      else resolve(true);
     });
   });
+  if (result !== true) return result;
+  // format the files in correct way
+  result = await new Promise((resolve, reject) => {
+    spawn(packman, ['run', 'format']).on('close', (code) => {
+      if (code !== 0) reject({ error: `${packman} run format` });
+      else resolve(true);
+    });
+  });
+  return result;
 }

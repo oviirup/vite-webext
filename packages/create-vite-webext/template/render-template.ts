@@ -18,6 +18,7 @@ export async function renderTemplate({
   template,
   packman,
   useTS,
+  useTailwind,
 }: TemplateArgs) {
   const isDirWritable = await isWriteable(path.dirname(appRoot));
   if (!isDirWritable) {
@@ -44,33 +45,42 @@ export async function renderTemplate({
     process.exit(1);
   }
 
-  /**
-   * Merges two package.json files, updating the name and displayName properties.
-   * @param {string} name - filename.
-   * @param {string} src - source file path.
-   * @param {string} dest - destination file path
-   * @returns a stringified version of the merged package.json file.
-   */
-  const mergePackageJson = async (name: string, src: string, dest: string) => {
-    if (name === 'package.json') {
-      let pkgData = fs.readFileSync(src, 'utf-8');
-      if (fs.existsSync(dest)) {
-        let existing = fs.readFileSync(dest, 'utf-8');
-        pkgData = mergePackages(pkgData, existing);
-      }
-      let pkgJson = JSON.parse(pkgData);
-      pkgJson.name &&= appName;
-      pkgJson.displayName &&= toTitleCase(appName);
-      return JSON.stringify(pkgJson, null, 2);
+  const useJSX = ['react', 'preact', 'solid'].includes(template);
+
+  /* Merges two package.json files, updating the name and displayName properties */
+  const mergePackageJson = (src: string, dest: string) => {
+    let pkgData = readFile(src);
+    if (fs.existsSync(dest)) {
+      let existing = readFile(dest);
+      pkgData = mergePackages(pkgData, existing);
     }
+    let pkgJson = JSON.parse(pkgData);
+    pkgJson.name &&= appName;
+    pkgJson.displayName &&= toTitleCase(appName);
+    return { code: JSON.stringify(pkgJson, null, 2) };
+  };
+
+  /** Transforms html files to use respective filename extensions */
+  const transformHTML = (src: string) => {
+    let code = readFile(src);
+    if (useJSX) code = code.replace('.js', '.jsx');
+    if (useTS) code = code.replace('.js', '.ts');
+    return { code };
   };
 
   // copy base files
-  await copyFiles('**', appRoot, {
+  let baseGlobs = ['**', useTS ? '!**/*.js' : '!**/*.ts'];
+  await copyFiles(baseGlobs, appRoot, {
     parents: true,
     cwd: path.join(root, 'base'),
     rename: (name) => name.replace(/^_/, '.'),
-    transform: mergePackageJson,
+    transform: async ({ fileName, src, dest }) => {
+      if (fileName === 'package.json') {
+        return mergePackageJson(src, dest);
+      } else if (/\.html$/.test(fileName)) {
+        return transformHTML(src);
+      }
+    },
   });
 
   // copy framework specific files
@@ -78,8 +88,27 @@ export async function renderTemplate({
     parents: true,
     cwd: templatePath,
     rename: (name) => name.replace(/^_/, '.'),
-    transform: mergePackageJson,
+    transform: async ({ fileName, src, dest }) => {
+      if (fileName === 'package.json') {
+        return mergePackageJson(src, dest);
+      }
+    },
   });
+
+  if (useTailwind) {
+    // copy tailwind files
+    let tailwindGlobs = ['*', useTS ? '!**/*.js' : '!**/*.ts'];
+    await copyFiles(tailwindGlobs, appRoot, {
+      parents: true,
+      cwd: path.join(root, 'tailwind'),
+      rename: (name) => name.replace(/^_/, '.'),
+      transform: async ({ fileName, src, dest }) => {
+        if (fileName === 'package.json') {
+          return mergePackageJson(src, dest);
+        }
+      },
+    });
+  }
 
   // move working dir to app root and install packages
   process.chdir(appRoot);
@@ -95,4 +124,12 @@ function toTitleCase(text: string) {
   let regex = /(?:^-*|-+)(.)/g;
   text = text.replace(regex, (_, e: string) => ` ${e.toUpperCase()}`);
   return text.trim();
+}
+
+/**
+ * Reads the contents of a file and returns it as a string.
+ * @param {string} file - the file path
+ */
+function readFile(file: string, encoding: BufferEncoding = 'utf-8') {
+  return fs.readFileSync(file, encoding);
 }

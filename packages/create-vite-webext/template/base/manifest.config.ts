@@ -18,5 +18,8 @@ export const manifest: chrome.runtime.Manifest = {
     page: './src/options/index.html',
     open_in_tab: true,
   },
+  background: {
+    service_worker: './src/background/main.js',
+  },
   host_permissions: ['https://*/*'],
 };

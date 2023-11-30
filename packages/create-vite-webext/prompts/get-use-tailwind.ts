@@ -5,16 +5,15 @@ import prompts from 'prompts';
  * Checks if the project uses typescript or javascript from cli
  * @param opts Commander options
  */
-export async function getUseTypescript(opts: Options): Promise<void> {
-  let useJS = opts.javascript;
-  let useTS = opts.typescript;
+export async function getUseTailwind(opts: Options): Promise<void> {
+  let useTailwind = opts.tailwind;
 
-  if (useJS === undefined && useTS === undefined) {
+  if (useTailwind === undefined) {
     const res = await prompts(
       {
         type: 'toggle',
-        name: 'typescript',
-        message: `Would you like to use ${blue('TypeScript')}?`,
+        name: 'tailwind',
+        message: `Would you like to use ${blue('Tailwind CSS')}?`,
         initial: true,
         active: 'Yes',
         inactive: 'No',
@@ -22,14 +21,7 @@ export async function getUseTypescript(opts: Options): Promise<void> {
       { onCancel: onCancelState },
     );
 
-    opts.typescript = Boolean(res.typescript);
-    opts.javascript = !Boolean(res.typescript);
-  }
-
-  if (opts.javascript) {
-    opts.typescript = false;
-  } else if (opts.typescript) {
-    opts.javascript = false;
+    opts.tailwind = Boolean(res.tailwind);
   }
 }
 

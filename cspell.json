@@ -3,12 +3,13 @@
   "words": [
     "Avirup",
     "Ghosh",
-    "vite",
-    "webext",
     "graygalaxy",
-    "tsup",
     "newtab",
-    "picocolors"
+    "picocolors",
+    "preact",
+    "tsup",
+    "vite",
+    "webext"
   ],
   "ignorePaths": [
     "node_modules",

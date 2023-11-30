@@ -3,14 +3,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { async as glob } from 'fast-glob';
 
+type TransformFn = (args: {
+  fileName: string;
+  src: string;
+  dest: string;
+}) => Promise<{ code: string; fileName?: string } | undefined>;
+
 export interface CopyOption {
   cwd?: string;
   rename?: (name: string) => string;
-  transform?: (
-    name: string,
-    src: string,
-    dest: string,
-  ) => Promise<string | undefined>;
+  transform?: TransformFn;
   parents?: boolean;
 }
 
@@ -60,12 +62,13 @@ export async function copyFiles(
       /** Ensure the destination directory exists */
       await fs.promises.mkdir(path.dirname(to), { recursive: true });
 
-      let fileData: string | undefined;
+      let fileData: Awaited<ReturnType<TransformFn>>;
       if (typeof transform === 'function') {
-        fileData = await transform(basename, from, to);
+        fileData = await transform({ fileName: basename, src: from, dest: to });
       }
-      if (typeof fileData === 'string') {
-        await fs.promises.writeFile(to, fileData, 'utf-8');
+      if (typeof fileData !== 'undefined') {
+        let outFile = fileData.fileName ?? to;
+        await fs.promises.writeFile(outFile, fileData.code, 'utf-8');
       } else {
         await fs.promises.copyFile(from, to);
       }
