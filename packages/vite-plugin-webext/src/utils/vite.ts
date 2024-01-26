@@ -20,10 +20,6 @@ export function updateConfig(
     if (version === 3) config.build.target = ['chrome91'];
   }
 
-  // define output directory
-  config.build.outDir ??= path.resolve(process.cwd(), '.extension');
-  let outDir = config.build.outDir;
-
   config.build.minify ??= true;
   config.build.emptyOutDir ??= true;
   config.build.modulePreload ??= false;
