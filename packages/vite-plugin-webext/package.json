@@ -5,11 +5,11 @@
   "description": "A vite plugin for generating cross browser platform, ES module based web extensions",
   "repository": {
     "type": "git",
-    "url": "https://github.com/graygalaxy/vite-webext",
+    "url": "https://github.com/oviirup/vite-webext",
     "directory": "packages/vite-plugin-webext"
   },
   "license": "MIT",
-  "author": "Avirup Ghosh (https://github.com/graygalaxy)",
+  "author": "Avirup Ghosh (https://github.com/oviirup)",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -42,7 +42,7 @@
     "vitest": "latest"
   },
   "peerDependencies": {
-    "vite": "^4.0.5"
+    "vite": ">=4"
   },
   "exports": {
     ".": {
