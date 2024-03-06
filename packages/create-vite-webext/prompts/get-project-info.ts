@@ -25,7 +25,8 @@ export async function getProjectInfo(program: Command, opts: Options) {
       message: 'What is your project named?',
       initial: 'web-extension',
       validate: (name) => {
-        const validation = validateProjectName(name);
+        const baseName = path.basename(path.resolve(name));
+        const validation = validateProjectName(baseName);
         return validation.valid
           ? true
           : `Invalid project name: ${validation.error![0]}`;

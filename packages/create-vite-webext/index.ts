@@ -7,7 +7,7 @@ import { getUseTailwind } from '@/prompts/get-use-tailwind';
 import { getUseTypescript } from '@/prompts/get-use-typescript';
 import { renderTemplate } from '@/template/render-template';
 import { Command } from 'commander';
-import { cyan, red } from 'picocolors';
+import { cyan, green, red } from 'picocolors';
 
 // exit process on termination
 ['SIGINT', 'SIGTERM', 'SIGQUIT', 'SIGKILL'].forEach((signal) =>
@@ -18,7 +18,7 @@ import { cyan, red } from 'picocolors';
 const program = new Command(pkgName)
   .version(pkgVersion)
   .arguments('[project-directory]')
-  .usage('<project-directory> [options]')
+  .usage(`${green('<project-directory>')} [options]`)
   .option(
     '--ts, --typescript',
     'Initialize as a TypeScript project. Explicitly tell the CLI to use Typescript version of the templates',

@@ -4,6 +4,7 @@
     "react-dom": "^18.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "latest"
+    "@vitejs/plugin-react": "latest",
+    "vite-jsconfig-paths": "latest"
   }
 }
