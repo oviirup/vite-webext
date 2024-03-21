@@ -1,13 +1,13 @@
-name: Publish Plugin
+name: Publish CLI Tool
 
 on:
   push:
     branches: [main]
-    paths: ['packages/vite-plugin-webext/**']
+    paths: ['packages/create-vite-webext/**']
   pull_request_target:
     branches: [main]
     types: [closed]
-    paths: ['packages/vite-plugin-webext/**']
+    paths: ['packages/create-vite-webext/**']
 
 jobs:
   publish:
