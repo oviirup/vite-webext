@@ -7,4 +7,4 @@ const tailwind = {
   plugins: [],
 };
 
-module.exports = tailwind;
+export default tailwind;

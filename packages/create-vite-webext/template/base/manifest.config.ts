@@ -15,7 +15,7 @@ export const manifest: chrome.runtime.Manifest = {
     default_popup: './src/popup/index.html',
   },
   options_ui: {
-    page: './src/options/index.html',
+    page: './src/option/index.html',
     open_in_tab: true,
   },
   background: {

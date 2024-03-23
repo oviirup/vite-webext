@@ -1,24 +1,27 @@
 {
   "name": "vite-web-extension",
+  "version": "0.0.1",
+  "type": "module",
   "displayName": "Vite Web Extension",
-  "version": "1.0.0",
   "description": "Web extension created using vite-plugin-webext",
+  "license": "MIT",
   "scripts": {
     "build": "vite build",
-    "watch": "vite build -w",
     "dev": "vite",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "watch": "vite build -w"
   },
-  "license": "MIT",
   "dependencies": {
-    "webextension-polyfill": "^0.10.0"
+    "webextension-polyfill": "^0.10"
   },
   "devDependencies": {
-    "@types/chrome": "latest",
-    "@types/node": "latest",
-    "@types/webextension-polyfill": "latest",
-    "prettier": "latest",
-    "vite": "latest",
-    "vite-plugin-webext": "latest"
+    "@types/chrome": "^0.0.263",
+    "@types/node": "^20",
+    "@types/webextension-polyfill": "^0.10",
+    "prettier": "^3",
+    "prettier-plugin-imports": "^4",
+    "prettier-plugin-pkg": "^0.18",
+    "vite": "^5",
+    "vite-plugin-webext": "^1"
   }
 }

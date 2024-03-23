@@ -6,12 +6,12 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
-    "paths": { "@/*": ["./*"] },
+    "paths": { "@/*": ["./src/*"] },
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "esnext"
   },
-  "include": ["**/*.ts", "template/*.ts"],
-  "exclude": ["template/base", "template/framework", "node_modules"]
+  "include": ["**/*.ts"],
+  "exclude": ["template", "node_modules"]
 }
