@@ -11,8 +11,14 @@
     "watch": "turbo run watch"
   },
   "devDependencies": {
+    "husky": "^9",
+    "lint-staged": "^15",
     "prettier": "latest",
     "prettier-plugin-imports": "latest",
+    "prettier-plugin-pkg": "latest",
     "turbo": "latest"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,md,json,css,scss}": "prettier --write"
   }
 }

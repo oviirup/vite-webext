@@ -2,7 +2,7 @@ node_modules
 dist
 client
 .turbo
-*.d.ts
+cspell.json
 
 
 package-lock.json
