@@ -51,6 +51,7 @@ jobs:
         id: vCheck
         uses: endbug/version-check@v2
         with:
+          file-name: ./packages/vite-plugin-webext/package.json
           diff-search: true
 
       - name: 🚀 Publish vite-plugin-webext

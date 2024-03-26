@@ -7,8 +7,7 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "format": "prettier --write .",
-    "watch": "turbo run watch"
+    "format": "prettier . -w -u --cache"
   },
   "devDependencies": {
     "husky": "^9",
@@ -19,6 +18,6 @@
     "turbo": "latest"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx,md,json,css,scss}": "prettier --write"
+    "*": "prettier -w -u --cache"
   }
 }
