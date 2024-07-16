@@ -66,5 +66,9 @@
     "typescript": "latest",
     "vite-tsconfig-paths": "^4.2.1",
     "vitest": "latest"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   }
 }

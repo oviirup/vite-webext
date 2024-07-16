@@ -43,5 +43,9 @@
     "tsup": "^8",
     "tsx": "^4",
     "typescript": "^5"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   }
 }
