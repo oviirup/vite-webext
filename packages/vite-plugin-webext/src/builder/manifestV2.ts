@@ -14,7 +14,7 @@ export default class DevBuilderV2 extends DevBuilder<chrome.runtime.ManifestV2> 
     this.manifest.content_security_policy = getCSP(currentCSP);
   }
 
-  /** add checksum to scripts */
+  /** Add checksum to scripts */
   protected parseScriptHashes(content: string) {
     const matches = content.matchAll(/<script.*?>([^<]+)<\/script>/gis);
     for (const match of matches) {

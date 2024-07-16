@@ -17,16 +17,19 @@ export interface CopyOption {
 }
 
 /**
- * The `copyFiles` function copies files from a source directory to a destination
- * directory, with options for renaming, transforming, and creating parent
- * directories.
- * @param {string|string[]} source - glob pattern of files to copy
- * @param {string} dest - destination directory
- * @param {CopyOption}  options -
- *   - cwd - working directory
- *   - rename - rename the destination files
- *   - transform - render the code of the running files
- *   - parent - copy to parent folder
+ * The `copyFiles` function copies files from a source directory to a
+ * destination directory, with options for renaming, transforming, and creating
+ * parent directories.
+ *
+ * @param {string | string[]} source - Glob pattern of files to copy
+ * @param {string} dest - Destination directory
+ * @param {CopyOption} options -
+ *
+ *   - Cwd - working directory
+ *   - Rename - rename the destination files
+ *   - Transform - render the code of the running files
+ *   - Parent - copy to parent folder
+ *
  * @returns
  */
 export async function copyFiles(

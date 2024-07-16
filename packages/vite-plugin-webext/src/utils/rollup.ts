@@ -14,7 +14,7 @@ export function appendInputScripts(
   return optionsInputObject;
 }
 
-/** parse input options as object */
+/** Parse input options as object */
 function parseOptionsInput(input: Rollup.InputOptions['input']): {
   [entryAlias: string]: string;
 } {
@@ -32,7 +32,7 @@ function parseOptionsInput(input: Rollup.InputOptions['input']): {
   return input ?? {};
 }
 
-/** fetches all script file info from build output */
+/** Fetches all script file info from build output */
 export function getScriptChunkInfo(
   bundle: Rollup.OutputBundle,
   chunkId: string,
@@ -47,7 +47,7 @@ export function getScriptChunkInfo(
   }) as Rollup.OutputChunk | undefined;
 }
 
-/** fetches all css/sass file info from build output */
+/** Fetches all css/sass file info from build output */
 export function getCssAssetInfo(
   bundle: Rollup.OutputBundle,
   assetFileName: string,

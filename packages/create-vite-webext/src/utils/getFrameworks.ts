@@ -11,13 +11,13 @@ export function getFrameworks() {
   return {
     list,
     rootPath,
-    /** check if the list include specified framework */
+    /** Check if the list include specified framework */
     includes: list.includes,
     /** Check if the framework has typescript available */
     hasTS: (name: string) => {
       return ls.includes(`${name}-ts`);
     },
-    /** find the framework directory */
+    /** Find the framework directory */
     resolve: (name: string, hasTS: boolean = false) => {
       const fw = name + (hasTS ? '-ts' : '');
       const fwPath = path.resolve(rootPath, 'frameworks', fw);

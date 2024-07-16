@@ -2,8 +2,9 @@ import fs from 'node:fs';
 
 /**
  * Checks if a directory is writable.
- * @param {string} dir - working directory.
- * @returns a Promise that resolves to a boolean value.
+ *
+ * @param {string} dir - Working directory.
+ * @returns A Promise that resolves to a boolean value.
  */
 export async function isWriteable(dir: string): Promise<boolean> {
   try {

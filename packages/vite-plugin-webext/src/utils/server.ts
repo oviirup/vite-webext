@@ -3,7 +3,7 @@ import getEtag from 'etag';
 import type * as HTTP from 'node:http';
 import type * as Vite from 'vite';
 
-/** add hmr support to shadow dom */
+/** Add hmr support to shadow dom */
 export function contentScriptStyleHandler(
   req: Vite.Connect.IncomingMessage,
   res: HTTP.ServerResponse,

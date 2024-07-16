@@ -3,6 +3,7 @@ import pi from 'picocolors';
 
 /**
  * Checks if the project uses typescript or javascript from cli
+ *
  * @param opt Commander options
  */
 export async function useTypescript({ opt, prompts }: PromptOptions) {

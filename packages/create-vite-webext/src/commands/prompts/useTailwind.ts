@@ -3,6 +3,7 @@ import type { PromptOptions } from '@/types';
 
 /**
  * Checks if the project uses tailwind from cli
+ *
  * @param opt Commander options
  */
 export async function useTailwind({ opt, prompts }: PromptOptions) {

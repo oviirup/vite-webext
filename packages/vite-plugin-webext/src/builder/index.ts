@@ -184,7 +184,7 @@ export default abstract class DevBuilder<
     wasFilter: ReturnType<typeof createFilter>,
   ): Promise<void>;
 
-  /** get hmr server url with port */
+  /** Get hmr server url with port */
   private getHmrServer(devServerPort: number): string {
     if (typeof this.viteConfig.server.hmr! === 'boolean') {
       throw new Error('Vite HMR is misconfigured');

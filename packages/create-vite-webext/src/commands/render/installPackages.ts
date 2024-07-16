@@ -4,10 +4,11 @@ import pi from 'picocolors';
 import type { PackageManager } from '@/types';
 
 /**
- * Installs packages using a package manager, with an option to use
- * the local cache if offline, and returns a promise that resolves
- * once the installation is finished.
- * @param {PackageManager} packman - preferred package manager
+ * Installs packages using a package manager, with an option to use the local
+ * cache if offline, and returns a promise that resolves once the installation
+ * is finished.
+ *
+ * @param {PackageManager} packman - Preferred package manager
  * @returns A Promise is being returned.
  */
 export async function installPackages(packman: PackageManager) {

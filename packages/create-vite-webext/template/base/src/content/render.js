@@ -1,9 +1,10 @@
 import Browser from 'webextension-polyfill';
 
 /**
- * Injects the element to DOM using shadow DOM
- * Shadow doms enables hot-module-reload in dev mode.
- * @param cssPaths array of imported css - import.meta.CURRENT_CHUNK_CSS_PATHS
+ * Injects the element to DOM using shadow DOM Shadow doms enables
+ * hot-module-reload in dev mode.
+ *
+ * @param cssPaths Array of imported css - import.meta.CURRENT_CHUNK_CSS_PATHS
  */
 export async function render(cssPaths) {
   const wrapper = document.createElement('div');

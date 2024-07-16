@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process';
 import dns from 'node:dns';
 
-/** gets the proxy config from node */
+/** Gets the proxy config from node */
 function getProxy(): string | undefined {
   if (process.env.https_proxy) {
     return process.env.https_proxy;

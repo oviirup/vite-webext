@@ -6,8 +6,9 @@ import type { PromptOptions } from '@/types';
 
 /**
  * Gets the project name and path from the cli args.
- * @param opt commander options
- * @param program commander program
+ *
+ * @param opt Commander options
+ * @param program Commander program
  */
 export async function useProject({ opt, program, prompts }: PromptOptions) {
   let programName = program.name();

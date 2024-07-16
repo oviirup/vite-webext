@@ -122,10 +122,10 @@ export default abstract class ManifestParser<
     return result;
   }
 
-  /** imports all CS files */
+  /** Imports all CS files */
   protected parseInputCs(result: Result<Manifest>): Result<Manifest> {
     result.manifest.content_scripts?.forEach((script) => {
-      /** get all css & js files */
+      /** Get all css & js files */
       const files = [...(script.js ?? []), ...(script.css ?? [])];
       files?.forEach((file) => {
         const { inputFile, outputFile } = getFileName(file, this.viteConfig);
@@ -141,7 +141,7 @@ export default abstract class ManifestParser<
 
   protected abstract parseInputWas(result: Result<Manifest>): Result<Manifest>;
 
-  /** get all input html files */
+  /** Get all input html files */
   protected parseInputHtmlFile(
     html: string | undefined,
     result: Result<Manifest>,
@@ -156,7 +156,7 @@ export default abstract class ManifestParser<
     return result;
   }
 
-  /** get the output css files */
+  /** Get the output css files */
   protected parseOutputCss(
     file: string,
     bundle: Rollup.OutputBundle,
@@ -169,7 +169,7 @@ export default abstract class ManifestParser<
     return { file: cssAssetInfo.fileName };
   }
 
-  /** get the output js files */
+  /** Get the output js files */
   protected parseOutputJs(
     file: string,
     result: Result<Manifest>,
@@ -199,7 +199,7 @@ export default abstract class ManifestParser<
       bundle,
       Boolean(loader.source),
     );
-    /** gets all css output files of current script */
+    /** Gets all css output files of current script */
     chunk.code = chunk.code.replace(
       new RegExp('import.meta.CURRENT_CHUNK_CSS_PATHS', 'g'),
       `[${[...metadata.css].map((e) => JSON.stringify(e)).join(',')}]`,

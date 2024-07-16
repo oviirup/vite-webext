@@ -9,6 +9,7 @@ import pi from 'picocolors';
 
 /**
  * Responsible for scaffolding the template from frameworks and base files
+ *
  * - Checks if the folder is writable
  * - Clones the template
  * - Update the package as per the user input
@@ -104,8 +105,9 @@ export async function renderTemplate(opt: TemplateArgs) {
 
 /**
  * Converts a snake-case string to title case string.
- * @param {string} text - text to convert
- * @returns the input text with each word capitalized.
+ *
+ * @param {string} text - Text to convert
+ * @returns The input text with each word capitalized.
  */
 function toTitleCase(text: string) {
   let regex = /(?:^-*|-+)(.)/g;
@@ -115,7 +117,8 @@ function toTitleCase(text: string) {
 
 /**
  * Reads the contents of a file and returns it as a string.
- * @param {string} file - the file path
+ *
+ * @param {string} file - The file path
  */
 function readFile(file: string, encoding: BufferEncoding = 'utf-8') {
   return fs.readFileSync(file, encoding);

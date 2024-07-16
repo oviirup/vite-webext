@@ -15,7 +15,7 @@ export function sanitizeFileName(...filePaths: string[]) {
   };
 }
 
-/** returns the path only if it exists */
+/** Returns the path only if it exists */
 export function validatePath(filePath: string | undefined, noCheck = false) {
   if (!filePath) return;
   if (noCheck) return filePath;
@@ -23,7 +23,7 @@ export function validatePath(filePath: string | undefined, noCheck = false) {
   return;
 }
 
-/** checks is the file is in public or source */
+/** Checks is the file is in public or source */
 export function getFileName(
   fileName: string,
   config?: Vite.ResolvedConfig,

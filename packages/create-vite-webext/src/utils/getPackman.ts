@@ -26,7 +26,7 @@ export async function getPackman() {
   return { list, entries, available, current };
 }
 
-/** finds the package mangers and their version */
+/** Finds the package mangers and their version */
 async function exec(name: PackageManager, cmd: string, args: string[] = []) {
   try {
     const { stdout } = await execa(cmd, args, {
@@ -39,7 +39,7 @@ async function exec(name: PackageManager, cmd: string, args: string[] = []) {
   }
 }
 
-/** retrives the package manager using currently */
+/** Retrives the package manager using currently */
 export function getCurrentPackman(entries: PackageManager[]): PackageManager {
   const userAgent = process.env.npm_config_user_agent!;
   for (const pm of entries) {

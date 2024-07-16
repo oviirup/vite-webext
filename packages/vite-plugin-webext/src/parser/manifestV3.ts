@@ -16,7 +16,7 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
     );
   }
 
-  /** get all html files from */
+  /** Get all html files from */
   protected getHtmlFiles(manifest: Manifest): string[] {
     const htmlFiles = [
       manifest.action?.default_popup,
@@ -34,12 +34,12 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
     return htmlFiles.filter((file): file is string => typeof file === 'string');
   }
 
-  /** gets available parser input methods */
+  /** Gets available parser input methods */
   protected getParseInputMethods(): ((result: ParseResult) => ParseResult)[] {
     return [this.parseInputBackground];
   }
 
-  /** gets available parser output methods */
+  /** Gets available parser output methods */
   protected getParseOutputMethods(): ((
     result: ParseResult,
     bundle: Rollup.OutputBundle,
@@ -47,7 +47,7 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
     return [this.parseOutputSw];
   }
 
-  /** gets available parser output methods */
+  /** Gets available parser output methods */
   protected parseInputBackground(result: ParseResult): ParseResult {
     if (!result.manifest.background?.service_worker) return result;
 
@@ -62,7 +62,7 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
     return result;
   }
 
-  /** parse input web-accessible-resources */
+  /** Parse input web-accessible-resources */
   protected parseInputWas(result: Result<Manifest>): Result<Manifest> {
     result.manifest.web_accessible_resources?.forEach((struct) => {
       struct.resources.forEach((resource) => {
@@ -82,7 +82,7 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
     return result;
   }
 
-  /** parse content script for output */
+  /** Parse content script for output */
   protected async parseOutputCs(
     result: ParseResult,
     bundle: Rollup.OutputBundle,
@@ -131,7 +131,7 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
     return result;
   }
 
-  /** parse output web-accessible-resource */
+  /** Parse output web-accessible-resource */
   protected async parseOutputWas(
     result: ParseResult,
     bundle: Rollup.OutputBundle,
@@ -158,7 +158,7 @@ export default class ManifestV3 extends ManifestParser<Manifest> {
     return result;
   }
 
-  /** parse output background service-worker */
+  /** Parse output background service-worker */
   protected async parseOutputSw(
     result: ParseResult,
     bundle: Rollup.OutputBundle,

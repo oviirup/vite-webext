@@ -1,11 +1,15 @@
 {
-  "printWidth": 80,
-  "singleQuote": true,
-  "quoteProps": "consistent",
   "arrowParens": "always",
-  "plugins": ["prettier-plugin-imports", "prettier-plugin-pkg"],
   "importOrder": ["<BUILTIN_MODULES>", "<THIRD_PARTY_MODULES>", "<TYPES>"],
+  "plugins": [
+    "prettier-plugin-imports",
+    "prettier-plugin-jsdoc",
+    "prettier-plugin-pkg"
+  ],
+  "printWidth": 80,
+  "quoteProps": "consistent",
+  "semi": true,
+  "singleQuote": true,
   "tabWidth": 2,
-  "trailingComma": "all",
-  "semi": true
+  "trailingComma": "all"
 }

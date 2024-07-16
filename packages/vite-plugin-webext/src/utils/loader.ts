@@ -10,7 +10,7 @@ type FileLoaderPartial = {
   source?: string;
 };
 
-/** loader for scripts in html form */
+/** Loader for scripts in html form */
 export function getHtmlLoader(
   fileName: string,
   sourceFiles: string[],
@@ -25,7 +25,7 @@ export function getHtmlLoader(
   };
 }
 
-/** loader for any scripts */
+/** Loader for any scripts */
 export function getScriptLoader(
   inputFile: string,
   outputFile: string,
@@ -42,7 +42,7 @@ export function getScriptLoader(
   };
 }
 
-/** loader for service worker (MV3) */
+/** Loader for service worker (MV3) */
 export function getSwLoader(file: string): FileLoader {
   const importPath = file.startsWith('http') ? `${file}` : `/${file}`;
   return {
@@ -51,7 +51,7 @@ export function getSwLoader(file: string): FileLoader {
   };
 }
 
-/** loader for all content scripts */
+/** Loader for all content scripts */
 export function getCsLoader(
   fileName: string,
   chunk: Rollup.OutputChunk,
@@ -63,7 +63,7 @@ export function getCsLoader(
   return getScriptLoader(fileName, chunk.fileName);
 }
 
-/** loader for web accessible scripts */
+/** Loader for web accessible scripts */
 export function getWasLoader(
   fileName: string,
   chunk: Rollup.OutputChunk,

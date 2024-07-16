@@ -1,27 +1,53 @@
 {
   "name": "vite-plugin-webext",
   "version": "1.2.19",
-  "private": false,
   "description": "A vite plugin for generating cross browser platform, ES module based web extensions",
   "repository": {
     "type": "git",
     "url": "https://github.com/oviirup/vite-webext",
     "directory": "packages/vite-plugin-webext"
   },
-  "license": "MIT",
   "author": "Avirup Ghosh (https://github.com/oviirup)",
+  "license": "MIT",
+  "private": false,
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./client": {
+      "types": "./client/index.d.ts",
+      "import": "./client/index.mjs",
+      "require": "./client/index.mjs"
+    }
+  },
   "types": "dist/index.d.ts",
   "files": [
-    "dist",
-    "client"
+    "client",
+    "dist"
+  ],
+  "keywords": [
+    "vite-plugin",
+    "web-extension",
+    "chrome-extension",
+    "extension",
+    "addon",
+    "browser",
+    "chrome",
+    "firefox",
+    "edge"
   ],
   "scripts": {
     "build": "tsup",
-    "watch": "tsup --watch",
+    "clean": "rimraf -g client dist",
     "test": "vitest --run",
-    "clean": "rimraf -g client dist"
+    "watch": "tsup --watch"
+  },
+  "peerDependencies": {
+    "vite": ">=4"
   },
   "dependencies": {
     "etag": "1",
@@ -40,31 +66,5 @@
     "typescript": "latest",
     "vite-tsconfig-paths": "^4.2.1",
     "vitest": "latest"
-  },
-  "peerDependencies": {
-    "vite": ">=4"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    },
-    "./client": {
-      "types": "./client/index.d.ts",
-      "import": "./client/index.mjs",
-      "require": "./client/index.mjs"
-    }
-  },
-  "keywords": [
-    "vite-plugin",
-    "web-extension",
-    "chrome-extension",
-    "extension",
-    "addon",
-    "browser",
-    "chrome",
-    "firefox",
-    "edge"
-  ]
+  }
 }

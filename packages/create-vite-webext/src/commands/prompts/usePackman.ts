@@ -4,7 +4,8 @@ import type { PromptOptions } from '@/types';
 
 /**
  * Specifies which package manager to use
- * @param opts commander options
+ *
+ * @param opts Commander options
  */
 export async function usePackman({ opt, prompts }: PromptOptions) {
   const packman = await getPackman();

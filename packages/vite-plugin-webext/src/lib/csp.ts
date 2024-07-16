@@ -16,7 +16,7 @@ export class ContentSecurityPolicy {
       }, {});
     }
   }
-  /** add values to directive */
+  /** Add values to directive */
   add(directive: CspDirective, ...newValues: string[]): ContentSecurityPolicy {
     const values = this.data[directive] ?? [];
     newValues.forEach((newValue) => {
@@ -25,7 +25,7 @@ export class ContentSecurityPolicy {
     this.data[directive] = values;
     return this;
   }
-  /** convert csp object to string */
+  /** Convert csp object to string */
   toString(): string {
     const directives = Object.entries(this.data).sort(([l], [r]) => {
       const lo = ContentSecurityPolicy.DIRECTIVE_ORDER[l] ?? 2;

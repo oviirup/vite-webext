@@ -17,7 +17,7 @@ export default class ManifestV2 extends ManifestParser<Manifest> {
     );
   }
 
-  /** get all html files from manifest */
+  /** Get all html files from manifest */
   protected getHtmlFiles(manifest: Manifest): string[] {
     const htmlFiles = [
       manifest.background?.page,
@@ -36,21 +36,21 @@ export default class ManifestV2 extends ManifestParser<Manifest> {
     return htmlFiles.filter((file): file is string => typeof file === 'string');
   }
 
-  /** gets available input methods */
+  /** Gets available input methods */
   protected getParseInputMethods(): ((
     result: ManifestParseResult,
   ) => ManifestParseResult)[] {
     return [];
   }
 
-  /** gets available parser output methods */
+  /** Gets available parser output methods */
   protected getParseOutputMethods(): ((
     result: ManifestParseResult,
   ) => Promise<ManifestParseResult>)[] {
     return [this.parseWatchMode.bind(this)];
   }
 
-  /** parse input web-accessible-resources */
+  /** Parse input web-accessible-resources */
   protected parseInputWas(result: Result<Manifest>): Result<Manifest> {
     result.manifest.web_accessible_resources?.forEach((resource) => {
       if (resource.includes('*')) return;
@@ -64,7 +64,7 @@ export default class ManifestV2 extends ManifestParser<Manifest> {
     return result;
   }
 
-  /** parse content script for output */
+  /** Parse content script for output */
   protected async parseOutputCs(
     result: ManifestParseResult,
     bundle: Rollup.OutputBundle,
@@ -97,7 +97,7 @@ export default class ManifestV2 extends ManifestParser<Manifest> {
     return result;
   }
 
-  /** parse output web-accessible-resource */
+  /** Parse output web-accessible-resource */
   protected async parseOutputWas(
     result: ManifestParseResult,
     bundle: Rollup.OutputBundle,

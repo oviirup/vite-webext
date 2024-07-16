@@ -5,7 +5,8 @@ import type { PromptOptions } from '@/types';
 
 /**
  * Generates the template from given options
- * @param opt commander options
+ *
+ * @param opt Commander options
  */
 export async function useTemplate({ opt, prompts }: PromptOptions) {
   let framework = opt.framework;
