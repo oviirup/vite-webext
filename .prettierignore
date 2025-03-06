@@ -1,12 +1,14 @@
-node_modules
-dist
-client
-.turbo
-*.d.ts
+# minified files
+*.min.js
+*.min.ts
 
-**/template/base/
-**/template/framework/
-
+# package lock files
+pnpm-lock.yaml
 package-lock.json
-pnpm-*.yaml
+bun.lock
 yarn.lock
+
+# miscellaneous
+*.log
+.DS_Store
+.pnp.*

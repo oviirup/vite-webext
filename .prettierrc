@@ -1,14 +1,18 @@
 {
-	"printWidth": 80,
-	"endOfLine": "lf",
-	"singleQuote": true,
-	"jsxSingleQuote": true,
-	"quoteProps": "consistent",
-	"arrowParens": "always",
-	"plugins": ["prettier-plugin-imports"],
-	"importOrder": ["<BUILTIN_MODULES>", "<THIRD_PARTY_MODULES>", "<TYPES>"],
-	"useTabs": true,
-	"tabWidth": 2,
-	"trailingComma": "all",
-	"semi": true
+  "arrowParens": "always",
+  "importOrder": [
+    "<BUILTIN_MODULES>",
+    "<THIRD_PARTY_MODULES>",
+    "^~/(.*)$",
+    "^[./]",
+    "<TYPES>"
+  ],
+  "plugins": [
+    "prettier-plugin-imports",
+    "prettier-plugin-jsdoc",
+    "prettier-plugin-pkg"
+  ],
+  "printWidth": 80,
+  "semi": true,
+  "tabWidth": 2
 }

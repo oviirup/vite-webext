@@ -1,0 +1,20 @@
+{
+  "editor.formatOnSave": true,
+  "explorer.sortOrder": "type",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  // eslint for monorepo
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  // file nesting
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "package.json": ".nvmrc, .npm*, bun.lockb, pnpm*",
+    "*.js": "",
+    "*.ts": "$(capture).*.ts, $(capture).*.js"
+  },
+  "cSpell.language": "en-gb",
+  // prettier-ignore
+  "cSpell.words": [
+    "vite","webext","graygalaxy","tsup","newtab","picocolors"
+  ]
+}
